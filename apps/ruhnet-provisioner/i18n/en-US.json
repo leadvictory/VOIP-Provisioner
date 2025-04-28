@@ -1,0 +1,32 @@
+{
+  "provisioner": {
+    "welcome": "RuhNet Provisioner",
+    "description": "Control Provisioner Settings",
+    "refreshButton": "Refresh",
+    "help": {
+      "title": "Provisioner - Help",
+      "helptext": "Retrieve a call by clicking the red panel, the slot number, or the caller name/number. Call the person who parked the call by clicking their name or number. The parking lot will auto-refresh every 30 seconds."
+    },
+    "provurl": {
+      "description": "Provisioning URL",
+      "subtitle": "(Does not require IP ACL)",
+      "tooltip": "For clients at an IP ACL address/network, you may use a shortened generic form of the URL, by replacing the account ID and secret token with an 'x'. E.g. 'https://provisioner.mydomain.com/p/x/x'"
+    },
+    "acls": {
+      "description": "IP ACLs",
+      "noAcls": "No IP ACLs defined on this account.",
+      "addAcl": {
+        "tooltip": "IP network (v4 or v6) or single address in CIDR format. E.g. 198.51.100.128/32 or 2001:1a:4c9::18/112",
+        "aclAddButton": "Add ACL"
+      }
+    },
+    "devicePassword": {
+      "description": "Device Password",
+      "notset": "No device password is set on this account. Devices will have their admin password set to their own MAC address (all lowercase with no colons e.g.: 'a2fe805b735d').",
+      "setDevicePassword": {
+        "tooltip": "Set the password used for devices in this account. (The phone web interface password.)",
+        "passwordSetButton": "Set Password"
+      }
+    }
+  }
+}

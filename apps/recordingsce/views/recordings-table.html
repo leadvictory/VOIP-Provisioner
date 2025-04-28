@@ -1,0 +1,95 @@
+<div id="filters" class="filters">
+	<div class="filter-item datetime-filter">
+		<input id="date-from" class="date-input" type="text"/>
+		<input id="time-from" class="time-input" type="text"/>
+		<span class="delimiter">{{i18n.recordingsce.filters.datetime.to}}</span>
+		<input id="date-to" class="date-input" type="text"/>
+		<input id="time-to" class="time-input" type="text"/>
+		<div class="set-date-buttons">
+			<a href="" class="js-set-date-range" data-range="all">{{i18n.recordingsce.filters.datetime.allTime}}</a>
+			<a href="" class="js-set-date-range" data-range="last-year">{{i18n.recordingsce.filters.datetime.lastYear}}</a>
+			<a href="" class="js-set-date-range" data-range="last-month">{{i18n.recordingsce.filters.datetime.lastMonth}}</a>
+			<a href="" class="js-set-date-range" data-range="last-week">{{i18n.recordingsce.filters.datetime.lastWeek}}</a>
+			<a href="" class="js-set-date-range" data-range="last-day">{{i18n.recordingsce.filters.datetime.lastDay}}</a>
+			<a href="" class="js-set-date-range" data-range="last-hour">{{i18n.recordingsce.filters.datetime.lastHour}}</a>
+		</div>
+	</div>
+	<div class="filter-item user-name-filter">
+		<div class="form-group">
+			<select data-placeholder="{{i18n.recordingsce.filters.userName.placeholder}}" class="form-control" id="user-name-select" multiple>
+				{{#each this.usersNames}}
+					<option value="{{this}}">{{this}}</option>
+				{{/each}}
+			</select>
+		</div>
+	</div>
+	<div class="filter-item device-name-filter">
+		<div class="form-group">
+			<select data-placeholder="{{i18n.recordingsce.filters.deviceName.placeholder}}" class="form-control" id="device-name-select" multiple>
+				{{#each this.devicesNames}}
+					<option value="{{this}}">{{this}}</option>
+				{{/each}}
+			</select>
+		</div>
+	</div>
+	<div class="filter-item duration-filter">
+		<div id="duration-slider"></div>
+		<div class="duration-filter-values">
+			<span>{{i18n.recordingsce.filters.duration.title}} </span>
+			<span id="duration-range-min" data-seconds="{{duration.min}}">{{duration.minHHMMSS}}</span>&nbsp;-&nbsp;
+			<span id="duration-range-max" data-seconds="{{duration.max}}">{{duration.maxHHMMSS}}</span>
+		</div>
+	</div>
+	<div id="filter-length-box" class="filter-item filter-length">
+		{{!-- reserved container for move here --}}
+	</div>
+	<div id="filter-search-box" class="filter-item filter-search">
+		{{!--  reserved container for move here --}}
+	</div>
+	<div class="filter-item reset-filter">
+		<a id="reset-filters" class="btn">{{i18n.recordingsce.filters.resetBtn.text}}</a>
+	</div>
+
+</div>
+<table id="recordings-list" class="recordings-table">
+	<thead>
+		<tr>
+			<th>{{i18n.recordingsce.recordingsTable.columnHeader.datetime}} {{timezone}}</th>
+			<th>{{i18n.recordingsce.recordingsTable.columnHeader.duration}}</th>
+			<th>{{i18n.recordingsce.recordingsTable.columnHeader.user}}</th>
+			<th>{{i18n.recordingsce.recordingsTable.columnHeader.device}}</th>
+			<th>{{i18n.recordingsce.recordingsTable.columnHeader.callerNumber}}</th>
+			<th>{{i18n.recordingsce.recordingsTable.columnHeader.calleeNumber}}</th>
+			<th>№</th>
+			<th class="recordings-table__actions-col no-sort">
+				{{i18n.recordingsce.recordingsTable.columnHeader.actions}}
+			</th>
+		</tr>
+	</thead>
+	<tbody>
+	{{#each this.recordings}}
+		<tr class="js-item">
+			<td data-sort="{{start}}" class="js-item-datetime">{{datetime}}</td>
+			<td>{{duration}}</td>
+			<td class="js-item-owner">{{owner_name}}</td>
+			<td>{{device_name}}</td>
+			<td class="js-item-caller-number">{{caller_id_number}}</td>
+			<td class="js-item-callee-number">{{callee_id_number}}</td>
+			<td>{{inc @index}}</td>
+			<td class="recordings-table__actions-col">
+				<div class="buttons-wrapper">
+					<a class="btn js-play-recording" data-recording-id="{{id}}">
+						<i class="fa fa-play"></i>
+						{{@root.i18n.recordingsce.recordingsTable.playBtnText}}
+					</a>
+					<a class="btn js-download-recording" data-recording-id="{{id}}">
+						<i class="fa fa-download"></i>
+						{{@root.i18n.recordingsce.recordingsTable.downloadBtnText}}
+					</a>
+				</div>
+				<audio id="recording-player-{{id}}" controls="controls" style="display: none"></audio>
+			</td>
+		</tr>
+	{{/each}}
+	</tbody>
+</table>

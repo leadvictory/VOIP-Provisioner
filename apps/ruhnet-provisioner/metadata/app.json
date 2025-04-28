@@ -1,0 +1,31 @@
+{
+	"name": "ruhnet-provisioner",
+	"i18n": {
+		"en-US": {
+			"label": "RuhNet Provisioner",
+			"description": "Control provisioner settings.",
+			"features": [
+				"Add Phone Models",
+				"Set Device Password",
+				"Control IP ACLs"
+			]
+		}
+	},
+	"tags": [
+		"developer"
+	],
+	"icon": "provisioner_icon.png",
+	"api_url": "",
+	"author": "RuhNet",
+	"version": "1.1",
+	"license": "GPLv3",
+	"price": 0,
+	"screenshots": [
+		"provisioner_screenshot.png"
+	],
+	"urls": {
+		"documentation": "{documentation_url}",
+		"howto": "{howto_video_url}"
+	},
+	"pvt_type": "app"
+}

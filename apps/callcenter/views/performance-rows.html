@@ -1,0 +1,53 @@
+<div id="cc_chart_container">
+	<div class="dashboard-content">	
+		<div class="dashboard-content-div dashboard-right-content">
+			<div class="dashboard-box">		
+				<div class="dashboard-box-div total-numbers-div clearfix">
+					<div class="div-title link-box" data-category="numbers">
+						<span class="title">{{i18n.callcenter.performanceChart.chartLabelTotalCalls}}</span>
+						<span class="number">{{data.total_calls}}</span>
+					</div>
+					<div class="chart-container clearfix">
+						<div class="numbers-canvas-wrapper">
+							<canvas id="dashboard_calls_count_chart"></canvas>
+						</div>
+						<div class="chart-legend assigned-numbers-legend">
+							<ul>
+								{{#each callsCountList}}
+								<li class="legend-element">
+									<span class="legend-label">{{label}}</span>
+									<span class="legend-number" style="color: {{color}};">{{count}}</span>
+								</li>
+								{{/each}}
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="dashboard-content-div dashboard-right-content">
+			<div class="dashboard-box">		
+				<div class="dashboard-box-div total-numbers-div clearfix">
+					<div class="div-title link-box" data-category="numbers">
+						<span class="title">{{i18n.callcenter.performanceChart.chartLabelTotalCallTime}}</span>
+					</div>
+					<div class="chart-container clearfix">
+						<div class="numbers-canvas-wrapper">
+							<canvas id="dashboard_calls_time_chart"></canvas>
+						</div>
+						<div class="chart-legend assigned-numbers-legend">
+							<ul>
+								{{#each callsTimeList}}
+								<li class="legend-element">
+									<span class="legend-label">{{label}}</span>
+									<span class="legend-number" style="color: {{color}};">{{count}}</span>
+								</li>
+								{{/each}}
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

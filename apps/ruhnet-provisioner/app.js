@@ -1,0 +1,482 @@
+define(function (require) {
+	var $ = require("jquery"),
+		_ = require("lodash"),
+		monster = require("monster");
+
+	var app = {
+		name: "provisioner",
+
+		css: ["app"],
+
+		i18n: {
+			"en-US": { customCss: false },
+		},
+
+		// Defines API requests not included in the SDK
+		requests: {
+			'provisioner.provurl.get': {
+				'apiRoot': monster.config.api.provisioner,
+				'url': 'api/{accountId}/initialtoken',
+				'verb': 'GET'
+			},
+			'provisioner.phone_configfile.list': {
+				'apiRoot': monster.config.api.provisioner,
+				'url': 'api/{accountId}/files/customconfigs',
+				'verb': 'GET'
+			},
+			'provisioner.phone_configfile.get': {
+				'apiRoot': monster.config.api.provisioner,
+				'url': 'api/{accountId}/files/customconfigs',
+				'verb': 'GET'
+			},
+			'provisioner.phone_configfile.add': {
+				'apiRoot': monster.config.api.provisioner,
+				'url': 'api/{accountId}/files/customconfigs',
+				'verb': 'PUT'
+			},
+			'provisioner.phone_configfile.remove': {
+				'apiRoot': monster.config.api.provisioner,
+				'url': 'api/{accountId}/files/customconfigs',
+				'verb': 'DELETE'
+			},
+			'provisioner.account_configfile.list': {
+				'apiRoot': monster.config.api.provisioner,
+				'url': 'api/{accountId}/files/accountconfigs',
+				'verb': 'GET'
+			},
+			'provisioner.account_configfile.get': {
+				'apiRoot': monster.config.api.provisioner,
+				'url': 'api/{accountId}/files/accountconfigs',
+				'verb': 'GET'
+			},
+			'provisioner.account_configfile.add': {
+				'apiRoot': monster.config.api.provisioner,
+				'url': 'api/{accountId}/files/accountconfigs',
+				'verb': 'PUT'
+			},
+			'provisioner.account_configfile.remove': {
+				'apiRoot': monster.config.api.provisioner,
+				'url': 'api/{accountId}/files/accountconfigs',
+				'verb': 'DELETE'
+			},
+			'provisioner.acls.list': {
+				'apiRoot': monster.config.api.provisioner,
+				'url': 'api/{accountId}/acl',
+				'verb': 'GET'
+			},
+			'provisioner.acls.add': {
+				'apiRoot': monster.config.api.provisioner,
+				'url': 'api/{accountId}/acl',
+				'verb': 'PUT'
+			},
+			'provisioner.acls.delete': {
+				'apiRoot': monster.config.api.provisioner,
+				'url': 'api/{accountId}/acl',
+				'verb': 'DELETE'
+			},
+			'provisioner.devicepassword.get': {
+				'apiRoot': monster.config.api.provisioner,
+				'url': 'api/{accountId}/devicepassword',
+				'verb': 'GET'
+			},
+			'provisioner.devicepassword.set': {
+				'apiRoot': monster.config.api.provisioner,
+				'url': 'api/{accountId}/devicepassword',
+				'verb': 'POST'
+			},
+			'provisioner.devicepassword.delete': {
+				'apiRoot': monster.config.api.provisioner,
+				'url': 'api/{accountId}/devicepassword',
+				'verb': 'DELETE'
+			}
+		},
+
+		// Define the events available for other apps
+		subscribe: {},
+
+		// Method used by the Monster-UI Framework, shouldn't be touched unless you're doing some advanced kind of stuff!
+		load: function (callback) {
+			var self = this;
+
+			self.initApp(function () {
+				callback && callback(self);
+			});
+		},
+
+		// Method used by the Monster-UI Framework, shouldn't be touched unless you're doing some advanced kind of stuff!
+		initApp: function (callback) {
+			var self = this;
+
+			// Used to init the auth token and account id of this app
+			monster.pub("auth.initApp", {
+				app: self,
+				callback: callback,
+			});
+		},
+
+		//////////////////////////////////////////////////////////
+		// Entry Point of the app
+		//////////////////////////////////////////////////////////
+
+		render: function (container) {
+			var self = this,
+				$container = _.isEmpty(container)
+					? $("#monster_content")
+					: container,
+				$layout = $(
+					self.getTemplate({
+						name: "layout",
+					})
+				);
+
+			monster.ui.tooltips($layout);
+
+			self.bindEvents({
+				template: $layout,
+			});
+
+			$container.empty().append($layout); //draw the main part of the page in views/layout.html
+		},
+
+		bindEvents: function (args) {
+			var self = this,
+				$template = args.template;
+					
+
+			//load the parked calls on document ready, and repeat every 30 seconds
+			$(document).ready(function (e) {
+				loadProvUrl();
+				loadAcls();
+				loadDevicePassword();
+				//setInterval(loadParkingLot, 30000);
+			});
+
+			//Refresh parked calls button binding event:
+			$template.find("#refresh").on("click", function (e) {
+				loadProvUrl();
+				loadAcls();
+				loadDevicePassword();
+			});
+			
+
+			//Add Acls Help
+			$template.find("#acl-add-help").on("click", function (e) {
+				var helptemplate = $(app.getTemplate({
+					name: 'dialog-help'
+				}));
+
+				monster.ui.dialog(helptemplate, {
+					title: app.i18n.active().provisioner.help.title,
+					width: '600px',
+					onClose: function() {
+				    	//doStuff();
+					}
+				});
+			});
+
+			//Help Button/Dialog
+			$template.find("#help-button").on("click", function (e) {
+				var helptemplate = $(app.getTemplate({
+					name: 'dialog-help'
+				}));
+
+				monster.ui.dialog(helptemplate, {
+					title: app.i18n.active().provisioner.help.title,
+					width: '600px',
+					onClose: function() {
+				    	//doStuff();
+					}
+				});
+			});
+
+			function loadProvUrl() {
+				monster.request({
+					resource: "provisioner.provurl.get",
+					data: {
+						accountId: self.accountId,
+						userId: monster.apps.auth.currentUser.id,
+					},
+					success: function(res) {
+						$('#provurl').html(res.data.provision_url);
+					},
+					error: function(res) {
+						if (res.status == 401) {
+							monster.util.logoutAndReload();
+						} else {
+							monster.ui.alert("ERROR: Failed to get provisioning URL: " + parsedError);
+						}
+					}
+				});
+			} //end function loadProvUrl();
+
+			function loadAcls() {
+				self.getAcls(function (aclinfo) {
+					var $aclinfo = $(
+						self.getTemplate({
+							name: "aclinfo",
+							data: {
+								acls: aclinfo,
+							},
+						})
+					);
+
+					$template.find(".aclinfo").empty().append($aclinfo);
+
+					///Delete ACL binding
+					$template.find(".acl-delete").on("click", function (e) {
+						let aclEntry = $(this)
+							.closest(".acl-entry")
+							//.data("title"); //get the title, which is the ACL itself
+							.attr("id"); //get the id, which is the ACL itself
+						self.deleteAcl(aclEntry);
+					});
+
+					//Add ACL binding
+					$template.find("#acl-add-button").on("click", function (e) {
+						let acl = $template.find("#acl-add-input")[0].value;
+						self.addAcl(acl);
+					});
+				});
+			} //end function loadAcls();
+
+			function loadDevicePassword() {
+				self.getDevicePassword(function (devicepassword) {
+					var $devicepassword = $(
+						self.getTemplate({
+							name: "devicepassword",
+							data: {
+								devicepassword: devicepassword,
+							},
+						})
+					);
+					$template.find(".devicepassword").empty().append($devicepassword);
+
+					///Delete device password binding
+					$template.find(".devicepassword-delete").on("click", function (e) {
+						self.deleteDevicePassword("#devicepassword");
+					});
+
+					//Add device password binding
+					$template.find("#devicepassword-set-button").on("click", function (e) {
+						let dp = $template.find("#devicepassword-set-input")[0].value;
+						if (dp.length >= 3) { //min length 3 chars
+							self.setDevicePassword(dp);
+						} else {
+							monster.ui.alert("Password too short: must be at least 3 characters.");
+						}
+					});
+				});
+			} //end function loadDevicePassword();
+
+		}, //bindEvents
+
+		updateDevicePasswordTemplate: function (devicepassword) {
+			var self = this;
+			var $aclinfo = $(
+				app.getTemplate({
+					name: "devicepassword",
+					data: {
+						devicepassword: devicepassword,
+					},
+				})
+			);
+		},
+
+		getDevicePassword: function (callback) {
+			var self = this;
+			monster.request({
+				resource: "provisioner.devicepassword.get",
+				data: {
+					accountId: self.accountId,
+					userId: monster.apps.auth.currentUser.id,
+				},
+				success: function(res) {
+					//console.log(data);
+					callback(res.data);
+				},
+				error: function(res) {
+					if (res.status == 404) {
+						callback([]); //Populate results with nothing
+					} else if (res.status == 401) {
+						monster.util.logoutAndReload();
+					} else {
+						monster.ui.alert("ERROR: Failed to get account device password: " + parsedError);
+						callback([]); //Populate results with nothing
+					}
+				}
+			});
+		}, //end getDevicePassword
+
+		setDevicePassword: function(devicepassword) {
+			var self = this;
+
+			monster.request({
+				resource: "provisioner.devicepassword.set",
+				data: {
+					accountId: self.accountId,
+					userId: monster.apps.auth.currentUser.id,
+					data: {
+						password: devicepassword
+					}
+				},
+				success: function(res) {
+					//console.log(data);
+					let newpassword = `<div id="devicepassword" title="account-device-password" class="devicepassword-entry">${devicepassword}&nbsp;&nbsp;<i class="fa fa-remove devicepassword-delete"></i></div>`;
+					$("#devicepassword-list").append(newpassword);
+
+					$('#refresh').click(); //??
+
+				},
+				error: function(res) {
+					if (res.status == 401) {
+						//monster.util.logoutAndReload();
+					} else {
+						monster.ui.alert("ERROR: Failed to add account device password: " + parsedError);
+					}
+				}
+			});
+		},
+
+		deleteDevicePassword: function(devicepassword) {
+			var self = this;
+			monster.request({
+				resource: "provisioner.devicepassword.delete",
+				data: {
+					accountId: self.accountId,
+					userId: monster.apps.auth.currentUser.id,
+					data: {
+						devicepassword: devicepassword
+					}
+				},
+				success: function(res) {
+					//console.log(data);
+					//self.getAcls(self.updateAclsTemplate);
+					//"select[title='" + acl + "']").remove();
+					$('#refresh').click();
+				},
+				error: function(res) {
+					if (res.status == 401) {
+						monster.util.logoutAndReload();
+					} else {
+						monster.ui.alert("ERROR: Failed to delete account device password: " + parsedError);
+					}
+				}
+			});
+		},
+
+
+
+
+		updateAclsTemplate: function (aclinfo) {
+			var self = this;
+			var $aclinfo = $(
+				app.getTemplate({
+					name: "aclinfo",
+					data: {
+						acls: aclinfo,
+					},
+				})
+			);
+			//$(".aclinfo").empty().append($aclinfo);
+
+			/*
+			$(".acl-delete").on("click", function (e) {
+			console.log(self);
+				let aclEntry = $(this).closest(".acl-entry").attr("id"); //get the id, which is the ACL itself
+				self.deleteAcl(aclEntry);
+			});
+			*/
+
+		},
+
+		getAcls: function (callback) {
+			var self = this;
+			//$.ajax({
+			//	url: monster.config.api.provisioner + 'api/' + self.accountId + '/acl' ,
+			monster.request({
+				resource: "provisioner.acls.list",
+				data: {
+					accountId: self.accountId,
+					userId: monster.apps.auth.currentUser.id,
+					//number: dialNumber,
+				},
+				success: function(res) {
+					//console.log(data);
+					//$('#oncalldr').html(data.data.doctor);
+					//$('#oncallthru').html(data.data.end);
+					callback(res.data.acls);
+				},
+				error: function(res) {
+					if (res.status == 404) {
+						callback([]); //Populate results with nothing
+					} else if (res.status == 401) {
+						monster.util.logoutAndReload();
+					} else {
+						monster.ui.alert("ERROR: Failed to get ACLs: " + parsedError);
+						callback([]); //Populate results with nothing
+					}
+				}
+			});
+		}, //end getAcls
+
+		addAcl: function (acl) {
+			var self = this;
+			monster.request({
+				resource: "provisioner.acls.add",
+				data: {
+					accountId: self.accountId,
+					userId: monster.apps.auth.currentUser.id,
+					data: {
+						net: acl
+					}
+				},
+				success: function(res) {
+					//console.log(data);
+					//acl = res.data.acls[res.data.acls.length - 1];
+					let newacl = `<div id="${acl}" title="${acl}" class="acl-entry">${acl}&nbsp;&nbsp;<i class="fa fa-remove acl-delete"></i></div>`;
+					$("#acl-list").append(newacl);
+					$('#refresh').click();
+				},
+				error: function(res) {
+					if (res.status == 401) {
+						//monster.util.logoutAndReload();
+					} else {
+						monster.ui.alert("ERROR: Failed to add ACL: " + parsedError);
+					}
+				}
+			});
+		},
+
+		deleteAcl: function (acl) {
+			var self = this;
+			monster.request({
+				resource: "provisioner.acls.delete",
+				data: {
+					accountId: self.accountId,
+					userId: monster.apps.auth.currentUser.id,
+					data: {
+						net: acl
+					}
+				},
+				success: function(res) {
+					//console.log(data);
+					//self.getAcls(self.updateAclsTemplate);
+					//"select[title='" + acl + "']").remove();
+					$('#refresh').click();
+				},
+				error: function(res) {
+					if (res.status == 401) {
+						monster.util.logoutAndReload();
+					} else {
+						monster.ui.alert("ERROR: Failed to add ACL: " + parsedError);
+					}
+				}
+			});
+		},
+
+
+	////////////////////////////////////////////////////////
+	};
+
+	return app;
+});

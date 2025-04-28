@@ -1,0 +1,25 @@
+{
+	"demo": {
+		"welcome": "Welcome to our KazooCon Demo App",
+		"listDevices": "Registered Devices",
+		"listEvents": "List of live Events",
+		"clearEvents": "Clear Events",
+		"events": {
+			"CHANNEL_CREATE": "Calling...",
+			"CHANNEL_ANSWER": "In Call",
+			"CHANNEL_DESTROY": "Idle",
+			"CHANNEL_HOLD": "Hold",
+			"CHANNEL_UNHOLD": "Resumed",
+			"PARK_PARKED": "Parked",
+			"PARK_RETRIEVED": "Retrieved",
+			"PARK_ABANDONED": "Abandoned",
+		},
+		"table": {
+			"caller": "Caller",
+			"callee": "Callee",
+			"eventType": "Event Type",
+			"time": "Time",
+			"noEvents": "Nothing happened for now..."
+		}
+	}
+}

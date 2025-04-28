@@ -1,0 +1,51 @@
+{
+	"recordingsce": {
+		"title": "Recordings",
+		"description": "Listen to the recordings of conversations",
+		"universalErrorMessageTemplate": "Please contact your system administrator to configure %api% API, required for this application to work",
+		"recordingsTable": {
+			"title": "Recordings",
+			"columnHeader": {
+				"direction": "Inbound/Outbound",
+				"datetime": "Date/Time",
+				"user": "User",
+				"device": "Device",
+				"dialerNumber": "Dialer Number",
+				"duration": "Duration",
+				"actions": "Actions"
+			},
+			"playBtnText": "Play",
+			"downloadBtnText": "Download"
+		},
+		"filters": {
+			"datetime": {
+				"to": "to",
+				"allTime": "all time",
+				"lastYear": "last year",
+				"lastMonth": "last month",
+				"lastWeek": "last week",
+				"lastDay": "last day",
+				"lastHour": "last hour"
+			},
+			"direction": {
+				"all": "Inbound/Outbound",
+				"outbound": "Outbound",
+				"inbound": "Inbound"
+			},
+			"userName": {
+				"placeholder": "Choose a user name..."
+			},
+			"deviceName": {
+				"placeholder": "Choose a device name..."
+			},
+			"duration": {
+				"title": "Duration:",
+				"seconds": "sec."
+			},
+			"resetBtn": {
+				"text": "Reset filters"
+			}
+			
+		}
+	}
+}

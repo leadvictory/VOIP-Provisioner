@@ -1,0 +1,68 @@
+<div id="provisioner_wrapper">
+  <div class="hero-unit well">
+    <h2>{{ replaceVar i18n.provisioner.welcome monster.ui.user.username }}</h2>
+    <p>
+      {{ i18n.provisioner.description }} &nbsp;
+      <i id="help-button" class="fa fa-question-circle"></i>
+    </p>
+    <button id="refresh" class="btn btn-primary">
+      <i class="fa fa-refresh"></i>{{ i18n.provisioner.refreshButton }}
+    </button>
+  </div>
+
+  <div class="tabs" style="margin-left: 20px">
+    <ul class="nav nav-tabs">
+      <li class="active">
+        <a href="#account-settings" data-toggle="tab">Account Settings</a>
+      </li>
+      <li><a href="#devices" data-toggle="tab">Devices</a></li>
+      <li><a href="#device-actions" data-toggle="tab">Device Actions</a></li>
+      <li><a href="#logs" data-toggle="tab">Logs</a></li>
+      <li><a href="#phone-models" data-toggle="tab">Phone Models</a></li>
+    </ul>
+
+    <div class="tab-content">
+      <!-- Account Settings Tab -->
+      <div class="tab-pane active" id="account-settings">
+        <h3>Account Settings</h3>
+        <div class="section-wrapper">
+          <h4>{{ i18n.provisioner.provurl.description }}</h4>
+          <div id="provurl">{{provurl}}</div>
+        </div>
+
+        <div class="devicepassword"></div>
+        <div class="aclinfo"></div>
+
+        <!-- New: Dialplan Settings -->
+        <div class="dialplan-settings"></div>
+
+        <!-- New: Custom Config -->
+        <div class="custom-config"></div>
+      </div>
+
+      <!-- Devices List Tab -->
+      <div class="tab-pane" id="devices">
+        <h3>Devices</h3>
+        <div class="device-table"></div>
+      </div>
+
+      <!-- Device Actions Tab -->
+      <div class="tab-pane" id="device-actions">
+        <h3>Device Actions</h3>
+        <div class="device-actions-buttons"></div>
+      </div>
+
+      <!-- Logs Tab -->
+      <div class="tab-pane" id="logs">
+        <h3>Log Events</h3>
+        <div class="log-events"></div>
+      </div>
+
+      <!-- Phone Models Tab -->
+      <div class="tab-pane" id="phone-models">
+        <h3>Phone Models</h3>
+        <div class="phone-models"></div>
+      </div>
+    </div>
+  </div>
+</div>

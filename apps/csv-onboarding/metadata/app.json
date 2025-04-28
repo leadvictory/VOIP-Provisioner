@@ -1,0 +1,36 @@
+{
+	"name": "csv-onboarding",
+	"api_url": "http://10.26.0.41:8000/v2",
+	"i18n": {
+		"de-DE": {
+			"label": "CSV-Onboarding",
+			"description": "CSV-Onboarding",
+			"extended_description": "",
+			"features": [
+				""
+			]
+		},
+		"en-US": {
+			"label": "CSV Onboarding",
+			"description": "The CSV (comma separated value) Onboarding is a quick and straightforward way to bulk setup large amounts of users. This saves you time from having to setup each user manually.",
+			"extended_description": "",
+			"features": [
+				""
+			]
+		}
+	},
+	"tags": [
+		"developer"
+	],
+	"author": "2600hz",
+	"version": "1.0",
+	"license": "-",
+	"price": 0,
+	"icon": "",
+	"screenshots": [
+		"",
+		""
+	],
+	"phase": "gold",
+	"pvt_type": "app"
+}

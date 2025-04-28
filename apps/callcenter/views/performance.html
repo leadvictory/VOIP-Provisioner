@@ -1,0 +1,53 @@
+<div class="app-content-wrapper" style="display: block;">
+	<div class="cc-performance-container empty">
+		<div class="monster-table-wrapper-spaced">
+			<div class="content">
+				<div class="empty-state">
+					<div class="info-bar clearfix">
+						<div class="vmboxes-list pull-left">
+							<select class="select-agentbox" id="select_vmbox_empty">
+								<option value="none"></option>
+								{{#each agents}}
+									<option class="box-row" data-foo="{{queues}}" value="{{id}}">{{first_name}} {{last_name}}</option>
+								{{/each}}
+							</select>
+						</div>
+						<div class="vmboxes-list pull-left">
+							<select class="select-queuebox" id="select_vmbox_empty" style="width: 100px;">
+								<option value="none"></option>
+								{{#each queuesList}}
+									<option class="box-row" data-id="{{id}}" value="{{id}}">{{name}}</option>
+								{{/each}}
+							</select>
+						</div>
+					</div>
+					<div class="filter-by-date pull-left">
+						<div class="expand-dates">
+							<a class="monster-link blue toggle-filter">{{ i18n.callcenter.performanceChart.filterByDate }}</a>
+						</div>
+						<div class="date-ranges">
+							<span>{{i18n.startDate}}</span>
+							<input id="startDate" type="text" class="date-filter filter-from">
+							<i class="fa fa-calendar"></i>
+							<span>{{i18n.endDate}}</span>
+							<input id="endDate" type="text" class="date-filter filter-to">
+							<i class="fa fa-calendar"></i>
+							<button type="button" class="apply-filter monster-button-neutral monster-button-fit">{{i18n.filter}}</button>
+							<a class="monster-link blue toggle-filter">{{i18n.cancel}}</a>
+						</div>
+					</div>
+				</div>
+				<div class="custom-data-container">
+					<div class="monster-key-value-editor">
+						<div class="monster-key-value-data-container">
+						</div>
+						<a id="add-row" href="javascript:void(0);" class="monster-link pull-left">{{ i18n.callcenter.performanceChart.addDataRow }}</a>
+					</div>
+				</div>
+				<div class="loading-state">
+					<i class="fa fa-spin fa-spinner monster-primary-color"></i>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>	

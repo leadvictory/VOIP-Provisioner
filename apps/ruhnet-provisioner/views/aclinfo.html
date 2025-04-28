@@ -1,0 +1,17 @@
+ <div class="section-wrapper">
+	<h4 id="acl-list-description">{{ i18n.provisioner.acls.description }}</h4>
+	<div id="acl-list">
+		{{#each acls}}
+		<!-- div id="{{this}}" class="acl-entry"><i class="fa fa-minus"></i>&nbsp;&nbsp;{{this}}&nbsp;&nbsp;<i class="fa fa-remove delete-acl"></i></div> -->
+		<div id="{{this}}" title="{{this}}" class="acl-entry">{{this}}&nbsp;&nbsp;<i class="fa fa-remove acl-delete"></i></div>
+		{{else}}
+		  <!-- In a loop, you need to use '@root' to come back to the global scope and use the i18n variable -->
+		  <div>{{ @root.i18n.provisioner.acls.noAcls }}</div>
+		{{/each}}
+	</div>
+	<hr />
+	<div id="acl-add" class="form-control">
+		<input id="acl-add-input" type="text" name="acl-add" placeholder="111.222.111.222/32"/><i class="fa fa-question-circle" data-toggle="tooltip" title="{{ i18n.provisioner.acls.addAcl.tooltip }}"></i><br />
+		<button id="acl-add-button" class="btn btn-primary">{{ i18n.provisioner.acls.addAcl.aclAddButton }}</button>
+	</div>
+</div>
