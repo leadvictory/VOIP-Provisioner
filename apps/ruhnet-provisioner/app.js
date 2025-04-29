@@ -105,6 +105,22 @@ define(function (require) {
         url: "api/{accountId}/dialplan",
         verb: "DELETE",
       },
+      //custom config
+      "provisioner.account_customconfig.get": {
+        apiRoot: monster.config.api.provisioner,
+        url: "api/{accountId}/customconfig",
+        verb: "GET",
+      },
+      "provisioner.account_customconfig.set": {
+        apiRoot: monster.config.api.provisioner,
+        url: "api/{accountId}/customconfig",
+        verb: "POST",
+      },
+      "provisioner.account_customconfig.delete": {
+        apiRoot: monster.config.api.provisioner,
+        url: "api/{accountId}/customconfig",
+        verb: "DELETE",
+      },
     },
 
     // Define the events available for other apps
@@ -308,6 +324,7 @@ define(function (require) {
 
     loadCustomConfig: function () {
       var self = this;
+
       monster.request({
         resource: "provisioner.account_configfile.list",
         data: {
@@ -315,10 +332,29 @@ define(function (require) {
           userId: monster.apps.auth.currentUser.id,
         },
         success: function (res) {
-          var $customConfig = $("<div>").text("Custom Config Loaded!");
+          var formattedJSON = JSON.stringify(res.data, null, 2); // nicely formatted
+          var $customConfig = $(
+            self.getTemplate({
+              name: "customconfig",
+              data: {
+                custom_config: formattedJSON,
+              },
+            })
+          );
+
           $(".custom-config").empty().append($customConfig);
+
+          // Bind save button
+          $("#save-custom-config").on("click", function () {
+            try {
+              var parsed = JSON.parse($("#custom-config-input").val());
+              self.setCustomConfig(parsed);
+            } catch (e) {
+              monster.ui.alert("Invalid JSON format.");
+            }
+          });
         },
-        error: function (res) {
+        error: function () {
           monster.ui.alert("Failed to load custom config");
         },
       });
@@ -356,146 +392,6 @@ define(function (require) {
         },
       });
     },
-
-    // bindEvents: function (args) {
-    //   var self = this,
-    //     $template = args.template;
-
-    //   //load the parked calls on document ready, and repeat every 30 seconds
-    //   $(document).ready(function (e) {
-    //     loadProvUrl();
-    //     loadAcls();
-    //     loadDevicePassword();
-    //     //setInterval(loadParkingLot, 30000);
-    //   });
-
-    //   //Refresh parked calls button binding event:
-    //   $template.find("#refresh").on("click", function (e) {
-    //     loadProvUrl();
-    //     loadAcls();
-    //     loadDevicePassword();
-    //   });
-
-    //   //Add Acls Help
-    //   $template.find("#acl-add-help").on("click", function (e) {
-    //     var helptemplate = $(
-    //       app.getTemplate({
-    //         name: "dialog-help",
-    //       })
-    //     );
-
-    //     monster.ui.dialog(helptemplate, {
-    //       title: app.i18n.active().provisioner.help.title,
-    //       width: "600px",
-    //       onClose: function () {
-    //         //doStuff();
-    //       },
-    //     });
-    //   });
-
-    //   //Help Button/Dialog
-    //   $template.find("#help-button").on("click", function (e) {
-    //     var helptemplate = $(
-    //       app.getTemplate({
-    //         name: "dialog-help",
-    //       })
-    //     );
-
-    //     monster.ui.dialog(helptemplate, {
-    //       title: app.i18n.active().provisioner.help.title,
-    //       width: "600px",
-    //       onClose: function () {
-    //         //doStuff();
-    //       },
-    //     });
-    //   });
-
-    //   function loadProvUrl() {
-    //     monster.request({
-    //       resource: "provisioner.provurl.get",
-    //       data: {
-    //         accountId: self.accountId,
-    //         userId: monster.apps.auth.currentUser.id,
-    //       },
-    //       success: function (res) {
-    //         $("#provurl").html(res.data.provision_url);
-    //       },
-    //       error: function (res) {
-    //         if (res.status == 401) {
-    //           monster.util.logoutAndReload();
-    //         } else {
-    //           monster.ui.alert(
-    //             "ERROR: Failed to get provisioning URL: " + parsedError
-    //           );
-    //         }
-    //       },
-    //     });
-    //   } //end function loadProvUrl();
-
-    //   function loadAcls() {
-    //     self.getAcls(function (aclinfo) {
-    //       var $aclinfo = $(
-    //         self.getTemplate({
-    //           name: "aclinfo",
-    //           data: {
-    //             acls: aclinfo,
-    //           },
-    //         })
-    //       );
-
-    //       $template.find(".aclinfo").empty().append($aclinfo);
-
-    //       ///Delete ACL binding
-    //       $template.find(".acl-delete").on("click", function (e) {
-    //         let aclEntry = $(this)
-    //           .closest(".acl-entry")
-    //           //.data("title"); //get the title, which is the ACL itself
-    //           .attr("id"); //get the id, which is the ACL itself
-    //         self.deleteAcl(aclEntry);
-    //       });
-
-    //       //Add ACL binding
-    //       $template.find("#acl-add-button").on("click", function (e) {
-    //         let acl = $template.find("#acl-add-input")[0].value;
-    //         self.addAcl(acl);
-    //       });
-    //     });
-    //   } //end function loadAcls();
-
-    //   function loadDevicePassword() {
-    //     self.getDevicePassword(function (devicepassword) {
-    //       var $devicepassword = $(
-    //         self.getTemplate({
-    //           name: "devicepassword",
-    //           data: {
-    //             devicepassword: devicepassword,
-    //           },
-    //         })
-    //       );
-    //       $template.find(".devicepassword").empty().append($devicepassword);
-
-    //       ///Delete device password binding
-    //       $template.find(".devicepassword-delete").on("click", function (e) {
-    //         self.deleteDevicePassword("#devicepassword");
-    //       });
-
-    //       //Add device password binding
-    //       $template
-    //         .find("#devicepassword-set-button")
-    //         .on("click", function (e) {
-    //           let dp = $template.find("#devicepassword-set-input")[0].value;
-    //           if (dp.length >= 3) {
-    //             //min length 3 chars
-    //             self.setDevicePassword(dp);
-    //           } else {
-    //             monster.ui.alert(
-    //               "Password too short: must be at least 3 characters."
-    //             );
-    //           }
-    //         });
-    //     });
-    //   } //end function loadDevicePassword();
-    // }, //bindEvents
 
     updateDevicePasswordTemplate: function (devicepassword) {
       var self = this;
@@ -701,6 +597,7 @@ define(function (require) {
         },
       });
     },
+
     saveDialplanSettings: function () {
       var self = this;
       var digit_map = $("#digit_map").val();
@@ -729,6 +626,24 @@ define(function (require) {
       });
     },
 
+    setCustomConfig: function (config) {
+      var self = this;
+
+      monster.request({
+        resource: "provisioner.account_configfile.add",
+        data: {
+          accountId: self.accountId,
+          userId: monster.apps.auth.currentUser.id,
+          data: config,
+        },
+        success: function () {
+          monster.ui.alert("Custom config saved successfully.");
+        },
+        error: function () {
+          monster.ui.alert("Failed to save custom config.");
+        },
+      });
+    },
     ////////////////////////////////////////////////////////
   };
 

@@ -33,6 +33,11 @@
       "digitMapLabel": "Digit Map:",
       "dialDelayLabel": "Dial Delay (seconds):",
       "saveButton": "Save Dialplan Settings"
+    },
+    "customConfig": {
+      "title": "Custom Configuration",
+      "configLabel": "Custom Config JSON:",
+      "saveButton": "Save Custom Config"
     }
   }
 }
