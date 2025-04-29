@@ -27,6 +27,12 @@
         "tooltip": "Set the password used for devices in this account. (The phone web interface password.)",
         "passwordSetButton": "Set Password"
       }
+    },
+    "dialplanSettings": {
+      "title": "Dialplan Settings",
+      "digitMapLabel": "Digit Map:",
+      "dialDelayLabel": "Dial Delay (seconds):",
+      "saveButton": "Save Dialplan Settings"
     }
   }
 }
