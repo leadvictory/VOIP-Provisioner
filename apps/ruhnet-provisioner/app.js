@@ -121,6 +121,26 @@ define(function (require) {
         url: "api/{accountId}/customconfig",
         verb: "DELETE",
       },
+      "provisioner.phonemodels.list": {
+        apiRoot: monster.config.api.provisioner,
+        url: "api/phones",
+        verb: "GET",
+      },
+      "provisioner.phonemodels.get": {
+        apiRoot: monster.config.api.provisioner,
+        url: "api/phones/{brand}/{family}/{model}",
+        verb: "GET",
+      },
+      "provisioner.phonemodels.add": {
+        apiRoot: monster.config.api.provisioner,
+        url: "api/phones",
+        verb: "PUT",
+      },
+      "provisioner.phonemodels.update": {
+        apiRoot: monster.config.api.provisioner,
+        url: "api/phones",
+        verb: "POST",
+      },
     },
 
     // Define the events available for other apps

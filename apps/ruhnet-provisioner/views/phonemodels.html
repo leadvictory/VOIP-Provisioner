@@ -1,0 +1,31 @@
+<div class="section-wrapper">
+  <h4 id="phone-models-title">{{ i18n.provisioner.phoneModels.title }}</h4>
+
+  <div id="phone-models-list">
+    {{#each phone_models}}
+    <div id="{{this.id}}" class="phone-model-entry">
+      <strong>{{this.brand}} / {{this.family}} / {{this.model}}</strong>
+      <br />
+      {{this.settings}}
+      <br />
+      <i class="fa fa-remove phone-model-delete" data-id="{{this.id}}"></i>
+    </div>
+    {{else}}
+    <div>{{ @root.i18n.provisioner.phoneModels.noPhoneModels }}</div>
+    {{/each}}
+  </div>
+
+  <hr />
+
+  <div id="phone-model-add" class="form-control">
+    <textarea
+      id="phone-model-add-input"
+      placeholder='{"brand":"brand","family":"family","model":"model","settings":{}}'
+      rows="6"
+    ></textarea
+    ><br />
+    <button id="phone-model-add-button" class="btn btn-primary">
+      {{ i18n.provisioner.phoneModels.addPhoneModelButton }}
+    </button>
+  </div>
+</div>

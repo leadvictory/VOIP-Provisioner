@@ -38,6 +38,11 @@
       "title": "Custom Configuration",
       "configLabel": "Custom Config JSON:",
       "saveButton": "Save Custom Config"
+    },
+    "phoneModels": {
+      "title": "Phone Models",
+      "noPhoneModels": "No phone models found.",
+      "addPhoneModelButton": "Add Phone Model"
     }
   }
 }
