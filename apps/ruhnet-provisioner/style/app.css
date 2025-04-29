@@ -155,3 +155,20 @@ div.parked-call_slot {
 .tab-pane {
   margin-left: 20px;
 }
+
+form fieldset {
+  margin: 20px 0;
+  padding: 15px;
+  border: 1px solid #ccc;
+}
+
+form legend {
+  font-size: 1.1em;
+  font-weight: bold;
+  padding: 0 5px;
+}
+
+.form-subsection {
+  margin-left: 20px;
+  margin-top: 10px;
+}

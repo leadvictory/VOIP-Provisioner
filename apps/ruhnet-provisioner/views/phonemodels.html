@@ -1,14 +1,9 @@
 <div class="section-wrapper">
-  <h4 id="phone-models-title">{{ i18n.provisioner.phoneModels.title }}</h4>
-
   <div id="phone-models-list">
     {{#each phone_models}}
     <div id="{{this.id}}" class="phone-model-entry">
-      <strong>{{this.brand}} / {{this.family}} / {{this.model}}</strong>
-      <br />
-      {{this.settings}}
-      <br />
-      <i class="fa fa-remove phone-model-delete" data-id="{{this.id}}"></i>
+      <strong>{{this.brand}} / {{this.family}} / {{this.model}}</strong><br />
+      {{this.settings}}<br />
     </div>
     {{else}}
     <div>{{ @root.i18n.provisioner.phoneModels.noPhoneModels }}</div>
@@ -17,13 +12,109 @@
 
   <hr />
 
-  <div id="phone-model-add" class="form-control">
-    <textarea
-      id="phone-model-add-input"
-      placeholder='{"brand":"brand","family":"family","model":"model","settings":{}}'
-      rows="6"
-    ></textarea
-    ><br />
+  <!-- Phone Identity -->
+  <fieldset>
+    <legend>Phone Identity</legend>
+
+    <div class="form-row">
+      <label for="brand">Brand</label>
+      <input type="text" id="brand" placeholder="e.g. yealink" />
+      <span>(required)</span>
+    </div>
+
+    <div class="form-row">
+      <label for="family">Family</label>
+      <input type="text" id="family" placeholder="e.g. t4x" />
+      <span>(required)</span>
+    </div>
+
+    <div class="form-row">
+      <label for="model">Model</label>
+      <input type="text" id="model" placeholder="e.g. t46u" />
+      <span>(required)</span>
+    </div>
+  </fieldset>
+
+  <!-- Phone Settings -->
+  <fieldset>
+    <legend>Settings</legend>
+
+    <div class="form-row">
+      <label for="user_agent">User Agent</label>
+      <input type="text" id="user_agent" placeholder="Yealink SIP-T46U" />
+      <span>(required)</span>
+    </div>
+
+    <div class="form-row">
+      <label for="template_file">Template File</label>
+      <input type="text" id="template_file" placeholder="yealink.xcfg" />
+      <span>(optional)</span>
+    </div>
+
+    <div class="form-row">
+      <label for="token_use_limit">Token Limit</label>
+      <input type="number" id="token_use_limit" placeholder="e.g. 3" />
+      <span>(optional)</span>
+    </div>
+
+    <div class="form-row">
+      <label for="provisioning_protocol">Protocol</label>
+      <input type="text" id="provisioning_protocol" placeholder="HTTP:8080" />
+      <span>(optional)</span>
+    </div>
+
+    <div class="form-row">
+      <label for="content_type">Content-Type</label>
+      <input type="text" id="content_type" placeholder="text/xml" />
+      <span>(optional)</span>
+    </div>
+
+    <!-- Combo Keys & Feature Keys -->
+    <div class="form-subsection">
+      <strong>Combo Keys:</strong>
+      <div class="form-row">
+        <label for="combo_keys">Quantity</label>
+        <input type="number" id="combo_keys" placeholder="e.g. 15" />
+        <span>(optional)</span>
+      </div>
+    </div>
+
+    <div class="form-subsection">
+      <strong>Feature Keys:</strong>
+      <div class="form-row">
+        <label for="feature_keys">Quantity</label>
+        <input type="number" id="feature_keys" placeholder="e.g. 4" />
+        <span>(optional)</span>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <label for="voicemail_code">VM Code</label>
+      <input type="text" id="voicemail_code" placeholder="e.g. *97" />
+      <span>(optional)</span>
+    </div>
+
+    <!-- Firmware -->
+    <div class="form-subsection">
+      <strong>Firmware:</strong>
+      <div class="form-row">
+        <label for="firmware_version">Version</label>
+        <input type="text" id="firmware_version" placeholder="108.86.0.70" />
+        <span>(optional)</span>
+      </div>
+
+      <div class="form-row">
+        <label for="upgrades">Upgrades</label>
+        <textarea
+          id="upgrades"
+          placeholder='[{"from":"~^108\\.83","to":"108.84.0.10"}]'
+          rows="3"
+        ></textarea>
+        <span>(optional)</span>
+      </div>
+    </div>
+  </fieldset>
+  <div id="devicepassword-set" class="form-control">
     <button id="phone-model-add-button" class="btn btn-primary">
       {{ i18n.provisioner.phoneModels.addPhoneModelButton }}
     </button>

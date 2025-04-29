@@ -134,12 +134,12 @@ define(function (require) {
       "provisioner.phonemodels.add": {
         apiRoot: monster.config.api.provisioner,
         url: "api/phones",
-        verb: "PUT",
+        verb: "POST",
       },
       "provisioner.phonemodels.update": {
         apiRoot: monster.config.api.provisioner,
         url: "api/phones",
-        verb: "POST",
+        verb: "PUT",
       },
     },
 
@@ -397,17 +397,63 @@ define(function (require) {
 
     loadPhoneModelsTable: function () {
       var self = this;
+
       monster.request({
-        resource: "provisioner.phone_configfile.list",
+        resource: "provisioner.phonemodels.list",
         data: {
           accountId: self.accountId,
           userId: monster.apps.auth.currentUser.id,
         },
         success: function (res) {
-          var $models = $("<div>").text("Phone models loaded");
+          var phoneModelsArray = Object.values(res.data);
+
+          var $models = $(
+            self.getTemplate({
+              name: "phonemodels",
+              data: { phone_models: phoneModelsArray },
+            })
+          );
+
           $(".phone-models").empty().append($models);
+
+          $("#phone-model-add-button").on("click", function () {
+            try {
+              var modelData = {
+                brand: $("#brand").val(),
+                family: $("#family").val(),
+                model: $("#model").val(),
+                settings: {
+                  user_agent: $("#user_agent").val(),
+                  template_file: $("#template_file").val() || undefined,
+                  token_use_limit: $("#token_use_limit").val()
+                    ? parseInt($("#token_use_limit").val(), 10)
+                    : undefined,
+                  provisioning_protocol:
+                    $("#provisioning_protocol").val() || undefined,
+                  content_type: $("#content_type").val() || undefined,
+                  combo_keys: {
+                    quantity: parseInt($("#combo_keys").val(), 10),
+                  },
+                  feature_keys: {
+                    quantity: parseInt($("#feature_keys").val(), 10),
+                  },
+                  voicemail_code: $("#voicemail_code").val() || undefined,
+                  firmware: {
+                    version: $("#firmware_version").val(),
+                    upgrades: JSON.parse($("#upgrades").val() || "[]"),
+                  },
+                },
+              };
+
+              self.addPhoneModel(modelData);
+            } catch (e) {
+              monster.ui.alert(
+                "Invalid input, please check fields: " + e.message
+              );
+            }
+          });
         },
-        error: function (res) {
+        error: function () {
           monster.ui.alert("Failed to load phone models");
         },
       });
@@ -661,6 +707,26 @@ define(function (require) {
         },
         error: function () {
           monster.ui.alert("Failed to save custom config.");
+        },
+      });
+    },
+
+    addPhoneModel: function (modelData) {
+      var self = this;
+
+      monster.request({
+        resource: "provisioner.phonemodels.add",
+        data: {
+          accountId: self.accountId,
+          userId: monster.apps.auth.currentUser.id,
+          data: [modelData],
+        },
+        success: function () {
+          monster.ui.alert("Phone model added successfully.");
+          $("#refresh").click();
+        },
+        error: function () {
+          monster.ui.alert("Failed to add phone model.");
         },
       });
     },
