@@ -10,19 +10,17 @@
     </button>
   </div>
 
-  <div class="tabs" style="margin-left: 20px">
+  <div class="tabs">
     <ul class="nav nav-tabs">
       <li class="active">
         <a href="#account-settings" data-toggle="tab">Account Settings</a>
       </li>
-      <li><a href="#devices" data-toggle="tab">Devices</a></li>
-      <li><a href="#device-actions" data-toggle="tab">Device Actions</a></li>
-      <li><a href="#logs" data-toggle="tab">Logs</a></li>
+      <li><a href="#devices" data-toggle="tab">Devices & Logs</a></li>
       <li><a href="#phone-models" data-toggle="tab">Phone Models</a></li>
     </ul>
 
     <div class="tab-content">
-      <!-- Account Settings Tab -->
+      <!-- Tab 1: Account Settings -->
       <div class="tab-pane active" id="account-settings">
         <h3>Account Settings</h3>
         <div class="section-wrapper">
@@ -32,36 +30,26 @@
 
         <div class="devicepassword"></div>
         <div class="aclinfo"></div>
-
-        <!-- New: Dialplan Settings -->
         <div class="dialplan-settings"></div>
-
-        <!-- New: Custom Config -->
         <div class="custom-config"></div>
       </div>
 
-      <!-- Devices List Tab -->
+      <!-- Tab 2: Devices + Setting Buttons + Log Events -->
       <div class="tab-pane" id="devices">
-        <h3>Devices</h3>
+        <h3>Devices & Logs</h3>
         <div class="device-table"></div>
-      </div>
-
-      <!-- Device Actions Tab -->
-      <div class="tab-pane" id="device-actions">
-        <h3>Device Actions</h3>
+        <!-- List of Devices -->
         <div class="device-actions-buttons"></div>
-      </div>
-
-      <!-- Logs Tab -->
-      <div class="tab-pane" id="logs">
-        <h3>Log Events</h3>
+        <!-- Setting Buttons on Devices -->
         <div class="log-events"></div>
+        <!-- Log Events -->
       </div>
 
-      <!-- Phone Models Tab -->
+      <!-- Tab 3: Phone Models Management -->
       <div class="tab-pane" id="phone-models">
         <h3>Phone Models</h3>
         <div class="phone-models"></div>
+        <!-- Show/Add/Update Phone Models -->
       </div>
     </div>
   </div>
