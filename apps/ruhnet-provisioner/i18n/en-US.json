@@ -38,8 +38,9 @@
     },
     "customConfig": {
       "title": "Custom Configuration",
-      "configLabel": "Custom Config JSON:",
-      "saveButton": "Save Custom Config"
+      "configLabel": "Custom JSON Configuration",
+      "saveButton": "Save",
+      "deleteTooltip": "Delete current custom config"
     },
     "phoneModels": {
       "title": "Phone Models",

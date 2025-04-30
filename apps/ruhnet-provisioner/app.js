@@ -121,6 +121,7 @@ define(function (require) {
         url: "api/{accountId}/customconfig",
         verb: "DELETE",
       },
+      //phone models
       "provisioner.phonemodels.list": {
         apiRoot: monster.config.api.provisioner,
         url: "api/phones",
@@ -346,38 +347,59 @@ define(function (require) {
     loadCustomConfig: function () {
       var self = this;
 
-      monster.request({
-        resource: "provisioner.account_configfile.list",
-        data: {
-          accountId: self.accountId,
-          userId: monster.apps.auth.currentUser.id,
-        },
-        success: function (res) {
-          var formattedJSON = JSON.stringify(res.data, null, 2); // nicely formatted
-          var $customConfig = $(
-            self.getTemplate({
-              name: "customconfig",
-              data: {
-                custom_config: formattedJSON,
+      self.getCustomConfig(function (data) {
+        console.log("Custom Config Data:", data);
+
+        const formattedJSON = JSON.stringify(data, null, 2);
+        const $customConfig = $(
+          self.getTemplate({
+            name: "customconfig",
+            data: { custom_config: formattedJSON },
+          })
+        );
+
+        $(".custom-config").empty().append($customConfig);
+
+        // Save button
+        $("#save-custom-config").on("click", function () {
+          try {
+            const parsed = JSON.parse($("#custom-config-input").val());
+            self.setCustomConfig(parsed);
+          } catch (e) {
+            monster.ui.alert("Invalid JSON format.");
+          }
+        });
+
+        // Delete button
+        $(".custom-config-delete").on("click", function () {
+          self.deleteCustomConfig();
+        });
+
+        // Add custom config entry
+        $("#add-config-button").on("click", function () {
+          const brand = $("#config-brand").val().trim();
+          const family = $("#config-family").val().trim();
+          const model = $("#config-model").val().trim();
+          const key = $("#config-key").val().trim();
+          const value = $("#config-value").val().trim();
+
+          if (!brand || !family || !model || !key || !value) {
+            monster.ui.alert("All fields are required.");
+            return;
+          }
+
+          const config = {
+            [brand]: {
+              [family]: {
+                [model]: {
+                  [key]: value,
+                },
               },
-            })
-          );
+            },
+          };
 
-          $(".custom-config").empty().append($customConfig);
-
-          // Bind save button
-          $("#save-custom-config").on("click", function () {
-            try {
-              var parsed = JSON.parse($("#custom-config-input").val());
-              self.setCustomConfig(parsed);
-            } catch (e) {
-              monster.ui.alert("Invalid JSON format.");
-            }
-          });
-        },
-        error: function () {
-          monster.ui.alert("Failed to load custom config");
-        },
+          self.setCustomConfig(config);
+        });
       });
     },
 
@@ -729,7 +751,7 @@ define(function (require) {
       var self = this;
 
       monster.request({
-        resource: "provisioner.account_configfile.add",
+        resource: "provisioner.account_customconfig.set",
         data: {
           accountId: self.accountId,
           userId: monster.apps.auth.currentUser.id,
@@ -737,9 +759,51 @@ define(function (require) {
         },
         success: function () {
           monster.ui.alert("Custom config saved successfully.");
+          self.loadCustomConfig();
         },
         error: function () {
           monster.ui.alert("Failed to save custom config.");
+        },
+      });
+    },
+
+    getCustomConfig: function (callback) {
+      var self = this;
+      monster.request({
+        resource: "provisioner.account_customconfig.get",
+        data: {
+          accountId: self.accountId,
+          userId: monster.apps.auth.currentUser.id,
+        },
+        success: function (res) {
+          console.log("Custom Config Data:", res.data);
+          callback(res.data);
+        },
+        error: function (res) {
+          if (res.status === 404) {
+            callback({});
+          } else {
+            monster.ui.alert("Failed to get custom config");
+            callback({});
+          }
+        },
+      });
+    },
+
+    deleteCustomConfig: function () {
+      var self = this;
+      monster.request({
+        resource: "provisioner.account_customconfig.delete",
+        data: {
+          accountId: self.accountId,
+          userId: monster.apps.auth.currentUser.id,
+        },
+        success: function () {
+          monster.ui.alert("Custom config deleted.");
+          $("#refresh").click();
+        },
+        error: function () {
+          monster.ui.alert("Failed to delete custom config.");
         },
       });
     },

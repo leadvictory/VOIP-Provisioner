@@ -1,12 +1,34 @@
 <div class="section-wrapper">
   <h4 id="custom-config-title">{{ i18n.provisioner.customConfig.title }}</h4>
-  <div class="form-control">
-    <label>{{ i18n.provisioner.customConfig.configLabel }}</label>
-    <textarea id="custom-config-input" rows="10" style="width: 99%"></textarea
-    ><br />
 
-    <button id="save-custom-config" class="btn btn-primary">
-      {{ i18n.provisioner.customConfig.saveButton }}
-    </button>
+  <!-- Display current config -->
+  <div class="form-control">
+    <textarea id="custom-config-input" rows="10" style="width: 99%">
+{{custom_config}}</textarea
+    >
+    <br />
+    <i
+      class="fa fa-remove custom-config-delete"
+      style="cursor: pointer; margin-left: 10px"
+      title="{{ i18n.provisioner.customConfig.deleteTooltip }}"
+    ></i>
+  </div>
+
+  <hr />
+
+  <!-- Add new config setting -->
+  <div class="form-control">
+    <label>Add Custom Config Setting</label>
+    <input type="text" id="config-brand" placeholder="Brand (e.g., yealink)" />
+    <input type="text" id="config-family" placeholder="Family (e.g., t4x)" />
+    <input type="text" id="config-model" placeholder="Model (e.g., t48u)" />
+    <input
+      type="text"
+      id="config-key"
+      placeholder="Key (e.g., features.config_dsskey_length)"
+    />
+    <input type="text" id="config-value" placeholder="Value (e.g., 2)" />
+    <br />
+    <button id="add-config-button" class="btn btn-primary">Add Setting</button>
   </div>
 </div>
