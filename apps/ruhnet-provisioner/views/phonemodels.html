@@ -1,14 +1,36 @@
 <div class="section-wrapper">
   <div id="phone-models-list">
     {{#each phone_models}}
-    <div id="{{this.id}}" class="phone-model-entry">
-      <strong>{{this.brand}} / {{this.family}} / {{this.model}}</strong><br />
-      {{this.settings}}<br />
-    </div>
+      <div id="{{this.id}}" class="phone-model-entry">
+        <strong>{{this.brand}} / {{this.family}} / {{this.model}}</strong><br />
+  
+        <ul>
+          <li><strong>User Agent:</strong> {{this.settings.user_agent}}</li>
+          <li><strong>Template File:</strong> {{this.settings.template_file}}</li>
+          <li><strong>Token Limit:</strong> {{this.settings.token_use_limit}}</li>
+          <li><strong>Protocol:</strong> {{this.settings.provisioning_protocol}}</li>
+          <li><strong>Content-Type:</strong> {{this.settings.content_type}}</li>
+          <li><strong>Combo Keys:</strong> {{this.settings.combo_keys.quantity}}</li>
+          <li><strong>Feature Keys:</strong> {{this.settings.feature_keys.quantity}}</li>
+          <li><strong>VM Code:</strong> {{this.settings.voicemail_code}}</li>
+          <li><strong>Firmware Version:</strong> {{this.settings.firmware.version}}</li>
+  
+          {{#if this.settings.firmware.upgrades.length}}
+            <li><strong>Upgrades:</strong>
+              <ul>
+                {{#each this.settings.firmware.upgrades}}
+                  <li>From <code>{{this.from}}</code> to <code>{{this.to}}</code></li>
+                {{/each}}
+              </ul>
+            </li>
+          {{/if}}
+        </ul>
+      </div>
     {{else}}
-    <div>{{ @root.i18n.provisioner.phoneModels.noPhoneModels }}</div>
+      <div>{{ @root.i18n.provisioner.phoneModels.noPhoneModels }}</div>
     {{/each}}
   </div>
+  
 
   <hr />
 
@@ -95,7 +117,7 @@
     </div>
 
     <!-- Firmware -->
-    <div class="form-subsection">
+    <div class="form-row">
       <strong>Firmware:</strong>
       <div class="form-row">
         <label for="firmware_version">Version</label>
@@ -104,13 +126,15 @@
       </div>
 
       <div class="form-row">
-        <label for="upgrades">Upgrades</label>
-        <textarea
-          id="upgrades"
-          placeholder='[{"from":"~^108\\.83","to":"108.84.0.10"}]'
-          rows="3"
-        ></textarea>
-        <span>(optional)</span>
+        <label>Upgrades</label>
+        <div id="upgrades-list">
+          <div class="upgrade-entry">
+            <input type="text" placeholder="From version" class="upgrade-from" />
+            <input type="text" placeholder="To version" class="upgrade-to" />
+            <span>(optional)</span>
+          </div>
+        </div>
+      </div>
       </div>
     </div>
   </fieldset>
