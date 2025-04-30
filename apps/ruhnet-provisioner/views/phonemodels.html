@@ -1,36 +1,49 @@
 <div class="section-wrapper">
   <div id="phone-models-list">
-    {{#each phone_models}}
-      <div id="{{this.id}}" class="phone-model-entry">
-        <strong>{{this.brand}} / {{this.family}} / {{this.model}}</strong><br />
-  
-        <ul>
-          <li><strong>User Agent:</strong> {{this.settings.user_agent}}</li>
-          <li><strong>Template File:</strong> {{this.settings.template_file}}</li>
-          <li><strong>Token Limit:</strong> {{this.settings.token_use_limit}}</li>
-          <li><strong>Protocol:</strong> {{this.settings.provisioning_protocol}}</li>
-          <li><strong>Content-Type:</strong> {{this.settings.content_type}}</li>
-          <li><strong>Combo Keys:</strong> {{this.settings.combo_keys.quantity}}</li>
-          <li><strong>Feature Keys:</strong> {{this.settings.feature_keys.quantity}}</li>
-          <li><strong>VM Code:</strong> {{this.settings.voicemail_code}}</li>
-          <li><strong>Firmware Version:</strong> {{this.settings.firmware.version}}</li>
-  
-          {{#if this.settings.firmware.upgrades.length}}
-            <li><strong>Upgrades:</strong>
-              <ul>
-                {{#each this.settings.firmware.upgrades}}
-                  <li>From <code>{{this.from}}</code> to <code>{{this.to}}</code></li>
+    {{#each phone_models}} <!-- brand level -->
+      {{#with this as |brand|}}
+        {{#each brand.families}} <!-- family level -->
+          {{#with this as |family|}}
+            {{#each family.models}} <!-- model level -->
+              {{#with this as |model|}}
+                {{#each model.settings}} <!-- settings level -->
+                  <div id="{{model.id}}" class="phone-model-entry">
+                    <strong>ID:</strong> {{model.id}}<br />
+                    <strong>Brand:</strong> {{brand.name}}<br />
+                    <strong>Family:</strong> {{family.name}}<br />
+                    <strong>Model:</strong> {{model.name}}<br />
+
+                    <ul>
+                      {{#if user_agent}}<li><strong>User Agent:</strong> {{user_agent}}</li>{{/if}}
+                      {{#if template_file}}<li><strong>Template File:</strong> {{template_file}}</li>{{/if}}
+                      {{#if token_use_limit}}<li><strong>Token Limit:</strong> {{token_use_limit}}</li>{{/if}}
+                      {{#if provisioning_protocol}}<li><strong>Protocol:</strong> {{provisioning_protocol}}</li>{{/if}}
+                      {{#if content_type}}<li><strong>Content-Type:</strong> {{content_type}}</li>{{/if}}
+                      {{#if combo_keys.quantity}}<li><strong>Combo Keys:</strong> {{combo_keys.quantity}}</li>{{/if}}
+                      {{#if feature_keys.quantity}}<li><strong>Feature Keys:</strong> {{feature_keys.quantity}}</li>{{/if}}
+                      {{#if voicemail_code}}<li><strong>VM Code:</strong> {{voicemail_code}}</li>{{/if}}
+                      {{#if firmware.version}}<li><strong>Firmware Version:</strong> {{firmware.version}}</li>{{/if}}
+                      {{#if firmware.upgrades.length}}
+                        <li><strong>Upgrades:</strong>
+                          <ul>
+                            {{#each firmware.upgrades}}
+                              <li>From <code>{{this.from}}</code> to <code>{{this.to}}</code></li>
+                            {{/each}}
+                          </ul>
+                        </li>
+                      {{/if}}
+                    </ul>
+                  </div>
                 {{/each}}
-              </ul>
-            </li>
-          {{/if}}
-        </ul>
-      </div>
+              {{/with}}
+            {{/each}}
+          {{/with}}
+        {{/each}}
+      {{/with}}
     {{else}}
       <div>{{ @root.i18n.provisioner.phoneModels.noPhoneModels }}</div>
     {{/each}}
   </div>
-  
 
   <hr />
 

@@ -134,12 +134,12 @@ define(function (require) {
       "provisioner.phonemodels.add": {
         apiRoot: monster.config.api.provisioner,
         url: "api/phones",
-        verb: "POST",
+        verb: "PUT",
       },
       "provisioner.phonemodels.update": {
         apiRoot: monster.config.api.provisioner,
         url: "api/phones",
-        verb: "PUT",
+        verb: "POST",
       },
     },
 
