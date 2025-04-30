@@ -2,12 +2,64 @@
   <h4 id="dialplan-settings-title">
     {{ i18n.provisioner.dialplanSettings.title }}
   </h4>
-  <div class="form-control">
-    <label>{{ i18n.provisioner.dialplanSettings.digitMapLabel }}</label>
-    <input type="text" id="digit_map" value="{{digit_map}}" /><br />
 
-    <label>{{ i18n.provisioner.dialplanSettings.dialDelayLabel }}</label>
-    <input type="number" id="dial_delay" value="{{dial_delay}}" /><br />
+  <div id="dialplan-settings-list">
+    {{#if digit_map}}
+    <div
+      id="dialplan"
+      title="account-dialplan"
+      class="dialplan-entry"
+      style="display: flex; justify-content: space-between; align-items: center"
+    >
+      <div>
+        <label
+          >{{ i18n.provisioner.dialplanSettings.digitMapLabel }}:
+          {{digit_map}}</label
+        >
+        <label
+          >{{ i18n.provisioner.dialplanSettings.dialDelayLabel }}:
+          {{dial_delay}}</label
+        >
+        <button
+          class="btn btn-primary dialplan-delete"
+          title="{{ i18n.provisioner.dialplanSettings.deleteButton }}"
+        >
+          {{ i18n.provisioner.dialplanSettings.deleteButton }}
+        </button>
+      </div>
+    </div>
+    {{else}}
+    <div>{{ @root.i18n.provisioner.dialplanSettings.notSet }}</div>
+    {{/if}}
+  </div>
+
+  <div id="dialplan-settings-form" class="form-control">
+    <strong>{{ i18n.provisioner.dialplanSettings.digitMapLabel }}: </strong>
+    <input
+      id="digit_map"
+      type="text"
+      name="digit_map"
+      placeholder="e.g. [1-2]xxx|1[2-9]xxxxxxx|[2-9]xxxxxxx"
+    />
+    <i
+      class="fa fa-question-circle"
+      data-toggle="tooltip"
+      title="{{ i18n.provisioner.dialplanSettings.digitMapLabel }}"
+    ></i>
+    <br />
+    <strong>{{ i18n.provisioner.dialplanSettings.dialDelayLabel }}: </strong>
+    <input
+      id="dial_delay"
+      type="number"
+      name="dial_delay"
+      placeholder="e.g. 5"
+    />
+    <i
+      class="fa fa-question-circle"
+      data-toggle="tooltip"
+      title="{{ i18n.provisioner.dialplanSettings.dialDelayLabel }}"
+    ></i>
+    <br />
 
     <button id="save-dialplan" class="btn btn-primary">
       {{ i18n.provisioner.dialplanSettings.saveButton }}

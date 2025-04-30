@@ -307,38 +307,39 @@ define(function (require) {
     loadDialplanSettings: function () {
       var self = this;
 
-      monster.request({
-        resource: "provisioner.dialplan.get",
-        data: {
-          accountId: self.accountId,
-          userId: monster.apps.auth.currentUser.id,
-        },
-        success: function (res) {
-          var settings = res.data || {};
+      self.getDialplanSettings(function (settings) {
+        const $dialplan = $(
+          self.getTemplate({
+            name: "dialplanSettings",
+            data: {
+              digit_map: settings.digit_map || "",
+              dial_delay: settings.dial_delay || "",
+            },
+          })
+        );
 
-          var $dialplanSettings = $(
-            self.getTemplate({
-              name: "dialplanSettings",
-              data: {
-                digit_map: settings.digit_map || "",
-                dial_delay: settings.dial_delay || "",
-              },
-            })
-          );
+        $(".dialplan-settings").empty().append($dialplan);
 
-          $(".dialplan-settings").empty().append($dialplanSettings);
+        // Delete button
+        $(".dialplan-delete").on("click", function () {
+          self.deleteDialplanSettings();
+        });
 
-          $(document)
-            .off("click", "#save-dialplan")
-            .on("click", "#save-dialplan", function () {
-              self.saveDialplanSettings();
-            });
-        },
-        error: function () {
-          $(".dialplan-settings").html(
-            "<p>No dialplan settings found or failed to load.</p>"
-          );
-        },
+        // Save button
+        $("#save-dialplan").on("click", function () {
+          const digitMap = $("#digit_map").val();
+          const dialDelay = parseInt($("#dial_delay").val(), 10);
+
+          if (!digitMap || isNaN(dialDelay)) {
+            monster.ui.alert("Please provide valid dialplan values.");
+            return;
+          }
+
+          self.setDialplanSettings({
+            digit_map: digitMap,
+            dial_delay: dialDelay,
+          });
+        });
       });
     },
 
@@ -662,30 +663,64 @@ define(function (require) {
       });
     },
 
-    saveDialplanSettings: function () {
+    getDialplanSettings: function (callback) {
       var self = this;
-      var digit_map = $("#digit_map").val();
-      var dial_delay = parseInt($("#dial_delay").val(), 10);
 
-      var payload = {
+      monster.request({
+        resource: "provisioner.dialplan.get",
         data: {
-          digit_map: digit_map,
-          dial_delay: dial_delay,
+          accountId: self.accountId,
+          userId: monster.apps.auth.currentUser.id,
         },
-      };
+        success: function (res) {
+          callback(res.data || {});
+        },
+        error: function (res) {
+          if (res.status === 401) {
+            monster.util.logoutAndReload();
+          } else {
+            monster.ui.alert("ERROR: Failed to get dialplan settings");
+            callback({});
+          }
+        },
+      });
+    },
+
+    setDialplanSettings: function (data) {
+      var self = this;
 
       monster.request({
         resource: "provisioner.dialplan.set",
         data: {
           accountId: self.accountId,
           userId: monster.apps.auth.currentUser.id,
-          data: payload.data,
+          data: data,
         },
-        success: function (res) {
+        success: function () {
           monster.ui.alert("Dialplan settings updated successfully.");
+          $("#refresh").click();
         },
         error: function () {
           monster.ui.alert("Failed to update dialplan settings.");
+        },
+      });
+    },
+
+    deleteDialplanSettings: function () {
+      var self = this;
+
+      monster.request({
+        resource: "provisioner.dialplan.delete",
+        data: {
+          accountId: self.accountId,
+          userId: monster.apps.auth.currentUser.id,
+        },
+        success: function () {
+          monster.ui.alert("Dialplan settings deleted.");
+          $("#refresh").click();
+        },
+        error: function () {
+          monster.ui.alert("Failed to delete dialplan settings.");
         },
       });
     },

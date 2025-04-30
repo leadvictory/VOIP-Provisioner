@@ -30,9 +30,11 @@
     },
     "dialplanSettings": {
       "title": "Dialplan Settings",
-      "digitMapLabel": "Digit Map:",
-      "dialDelayLabel": "Dial Delay (seconds):",
-      "saveButton": "Save Dialplan Settings"
+      "digitMapLabel": "Digit  Map",
+      "dialDelayLabel": "Dial Delay",
+      "saveButton": "Save",
+      "deleteButton": "Delete",
+      "notSet": "No dialplan settings found"
     },
     "customConfig": {
       "title": "Custom Configuration",

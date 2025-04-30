@@ -28,6 +28,11 @@ div.section-wrapper {
   font-size: +1.2em;
 }
 
+.dialplan-entry {
+  padding: 5px;
+  font-size: +1.2em;
+}
+
 .acl-entry {
   padding: 5px;
   font-size: +1.2em;
