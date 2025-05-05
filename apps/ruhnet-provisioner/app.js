@@ -135,12 +135,12 @@ define(function (require) {
       "provisioner.phonemodels.add": {
         apiRoot: monster.config.api.provisioner,
         url: "api/phones",
-        verb: "PUT",
+        verb: "POST",
       },
       "provisioner.phonemodels.update": {
         apiRoot: monster.config.api.provisioner,
         url: "api/phones",
-        verb: "POST",
+        verb: "PUT",
       },
     },
 
@@ -443,33 +443,53 @@ define(function (require) {
               }
             });
 
+            // Helper functions for cleaning up values
+            var getVal = function (id) {
+              var val = $("#" + id)
+                .val()
+                ?.trim();
+              return val !== "" ? val : undefined;
+            };
+
+            var getIntVal = function (id) {
+              var val = parseInt($("#" + id).val(), 10);
+              return isNaN(val) ? undefined : val;
+            };
+
+            var firmwareVersion = getVal("firmware_version");
+            var firmwareSection =
+              firmwareVersion || upgrades.length
+                ? {
+                    version: firmwareVersion,
+                    upgrades: upgrades,
+                  }
+                : undefined;
+
             var modelData = {
-              brand: $("#brand").val(),
-              family: $("#family").val(),
-              model: $("#model").val(),
+              brand: getVal("brand"),
+              family: getVal("family"),
+              model: getVal("model"),
               settings: {
-                user_agent: $("#user_agent").val(),
-                template_file: $("#template_file").val() || undefined,
-                token_use_limit: $("#token_use_limit").val()
-                  ? parseInt($("#token_use_limit").val(), 10)
-                  : undefined,
-                provisioning_protocol:
-                  $("#provisioning_protocol").val() || undefined,
-                content_type: $("#content_type").val() || undefined,
+                user_agent: getVal("user_agent"),
+                template_file: getVal("template_file"),
+                token_use_limit: getIntVal("token_use_limit"),
+                provisioning_protocol: getVal("provisioning_protocol"),
+                content_type: getVal("content_type"),
                 combo_keys: {
-                  quantity: parseInt($("#combo_keys").val(), 10),
+                  quantity: getIntVal("combo_keys"),
                 },
                 feature_keys: {
-                  quantity: parseInt($("#feature_keys").val(), 10),
+                  quantity: getIntVal("feature_keys"),
                 },
-                voicemail_code: $("#voicemail_code").val() || undefined,
-                firmware: {
-                  version: $("#firmware_version").val(),
-                  upgrades: upgrades,
-                },
+                voicemail_code: getVal("voicemail_code"),
+                firmware: firmwareSection,
               },
             };
 
+            console.log(
+              "Sending modelData:",
+              JSON.stringify(modelData, null, 2)
+            );
             self.addPhoneModel(modelData);
           } catch (e) {
             monster.ui.alert(
@@ -1042,13 +1062,14 @@ define(function (require) {
         data: {
           accountId: self.accountId,
           userId: monster.apps.auth.currentUser.id,
-          data: [modelData],
+          data: [modelData], // 👈 not wrapped in an array
         },
         success: function () {
           monster.ui.alert("Phone model added successfully.");
           $("#refresh").click();
         },
-        error: function () {
+        error: function (error) {
+          console.error("API Error:", error);
           monster.ui.alert("Failed to add phone model.");
         },
       });
