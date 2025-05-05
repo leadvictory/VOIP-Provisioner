@@ -177,3 +177,27 @@ form legend {
   margin-left: 20px;
   margin-top: 10px;
 }
+
+.phonemodels-drilldown ul {
+  list-style: none;
+  padding-left: 0;
+}
+.phonemodels-drilldown li {
+  cursor: pointer;
+  padding: 4px 8px;
+  margin-bottom: 4px;
+  border-radius: 3px;
+}
+.phonemodels-drilldown li:hover {
+  background: #e8e8e8;
+}
+.phonemodels-drilldown button {
+  margin-bottom: 12px;
+}
+.phonemodels-drilldown {
+  max-width: 480px;
+  margin: 24px auto;
+  border: 1px solid #ccc;
+  border-radius: 7px;
+  padding: 24px;
+}

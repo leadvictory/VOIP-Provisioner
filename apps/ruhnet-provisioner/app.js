@@ -431,52 +431,231 @@ define(function (require) {
 
         $(".phone-models").empty().append($models);
 
-        $("#phone-model-add-button").on("click", function () {
-          try {
-            var upgrades = [];
-            $("#upgrades-list .upgrade-entry").each(function () {
-              var from = $(this).find(".upgrade-from").val().trim();
-              var to = $(this).find(".upgrade-to").val().trim();
+        var state = {
+          brandIdx: null,
+          familyKey: null,
+          modelKey: null,
+        };
 
-              if (from && to) {
-                upgrades.push({ from: from, to: to });
-              }
-            });
+        $(".phone-models")
+          .off("click", ".brand-item")
+          .on("click", ".brand-item", function () {
+            state.brandIdx = $(this).data("brand-idx");
+            state.familyKey = null; //
+            state.modelKey = null;
+            renderFamilyList();
+          });
 
-            var modelData = {
-              brand: $("#brand").val(),
-              family: $("#family").val(),
-              model: $("#model").val(),
-              settings: {
-                user_agent: $("#user_agent").val(),
-                template_file: $("#template_file").val() || undefined,
-                token_use_limit: $("#token_use_limit").val()
-                  ? parseInt($("#token_use_limit").val(), 10)
-                  : undefined,
-                provisioning_protocol:
-                  $("#provisioning_protocol").val() || undefined,
-                content_type: $("#content_type").val() || undefined,
-                combo_keys: {
-                  quantity: parseInt($("#combo_keys").val(), 10),
-                },
-                feature_keys: {
-                  quantity: parseInt($("#feature_keys").val(), 10),
-                },
-                voicemail_code: $("#voicemail_code").val() || undefined,
-                firmware: {
-                  version: $("#firmware_version").val(),
-                  upgrades: upgrades,
-                },
-              },
-            };
+        $(".phone-models")
+          .off("click", ".family-item")
+          .on("click", ".family-item", function () {
+            state.familyKey = $(this).data("family-key");
+            state.modelKey = null;
+            renderModelList();
+          });
 
-            self.addPhoneModel(modelData);
-          } catch (e) {
-            monster.ui.alert(
-              "Invalid input, please check fields: " + e.message
-            );
+        $(".phone-models")
+          .off("click", ".model-item")
+          .on("click", ".model-item", function () {
+            state.modelKey = $(this).data("model-key");
+            renderModelDetails();
+          });
+
+        $(".phone-models")
+          .off("click", ".back-to-brands")
+          .on("click", ".back-to-brands", function () {
+            renderBrandList();
+          });
+        $(".phone-models")
+          .off("click", ".back-to-families")
+          .on("click", ".back-to-families", function () {
+            state.familyKey = null;
+            state.modelKey = null;
+            renderFamilyList();
+          });
+        $(".phone-models")
+          .off("click", ".back-to-models")
+          .on("click", ".back-to-models", function () {
+            state.modelKey = null;
+            renderModelList();
+          });
+
+        function renderBrandList() {
+          state.brandIdx = null;
+          state.familyKey = null;
+          state.modelKey = null;
+          $(".brand-list-section").show();
+          $(".family-list-section").hide();
+          $(".model-list-section").hide();
+          $(".model-details-section").hide();
+        }
+
+        function renderFamilyList() {
+          state.familyKey = null;
+          state.modelKey = null;
+
+          var brand = phoneModelsArray[state.brandIdx];
+          if (!brand) {
+            console.error("Brand not found for index", state.brandIdx);
+            renderBrandList();
+            return;
           }
-        });
+
+          var familyKeys = Object.keys(brand.families);
+          var $familyList = $(".family-list").empty();
+
+          familyKeys.forEach(function (familyKey) {
+            $("<li>", {
+              html: brand.families[familyKey].name,
+              class: "family-item",
+              "data-family-key": familyKey,
+            }).appendTo($familyList);
+          });
+
+          $(".brand-list-section").hide();
+          $(".family-list-section").show();
+          $(".model-list-section").hide();
+          $(".model-details-section").hide();
+        }
+
+        function renderModelList() {
+          state.modelKey = null;
+
+          var brand = phoneModelsArray[state.brandIdx];
+          var family = brand.families[state.familyKey];
+          if (!brand || !family) {
+            console.error("Family not found for key", state.familyKey);
+            renderFamilyList();
+            return;
+          }
+
+          var modelKeys = Object.keys(family.models);
+          var $modelList = $(".model-list").empty();
+
+          modelKeys.forEach(function (modelKey) {
+            $("<li>", {
+              html: family.models[modelKey].name,
+              class: "model-item",
+              "data-model-key": modelKey,
+            }).appendTo($modelList);
+          });
+
+          $(".brand-list-section").hide();
+          $(".family-list-section").hide();
+          $(".model-list-section").show();
+          $(".model-details-section").hide();
+        }
+
+        function renderModelDetails() {
+          var brand = phoneModelsArray[state.brandIdx];
+          var family = brand.families[state.familyKey];
+          var model = family.models[state.modelKey];
+
+          if (!brand || !family || !model) {
+            $(".model-details").html(
+              "<div><em>Unable to load model details. (Missing brand, family, or model.)</em></div>"
+            );
+            $(".brand-list-section").hide();
+            $(".family-list-section").hide();
+            $(".model-list-section").hide();
+            $(".model-details-section").show();
+            console.error(
+              "Missing data in renderModelDetails. State:",
+              state,
+              "Data:",
+              brand,
+              family,
+              model
+            );
+            return;
+          }
+
+          var settings =
+            Array.isArray(model.settings) && model.settings.length > 0
+              ? model.settings[0]
+              : {};
+
+          function capitalize(str) {
+            return (str + "")
+              .replace(/_/g, " ")
+              .replace(/\b\w/g, (x) => x.toUpperCase());
+          }
+
+          function fieldRow(key, val) {
+            if (val === undefined || val === null || val === "") return "";
+            if (key === "firmware") {
+              if (typeof val === "string") {
+                return `<li><strong>Firmware Version:</strong> ${val}</li>`;
+              } else if (typeof val === "object" && val !== null) {
+                return `<li><strong>Firmware:</strong>
+                    <ul>
+                      ${
+                        val.version
+                          ? `<li><strong>Version:</strong> ${val.version}</li>`
+                          : ""
+                      }
+                      ${
+                        Array.isArray(val.upgrades) && val.upgrades.length
+                          ? `<li><strong>Upgrades:</strong>
+                              <ul>
+                                ${val.upgrades
+                                  .map(
+                                    (upg) =>
+                                      `<li>From <code>${upg.from}</code> to <code>${upg.to}</code></li>`
+                                  )
+                                  .join("")}
+                              </ul>
+                             </li>`
+                          : ""
+                      }
+                    </ul>
+                  </li>`;
+              }
+              return "";
+            }
+            if (key === "combo_keys" || key === "feature_keys") {
+              if (
+                typeof val === "object" &&
+                val !== null &&
+                val.quantity !== undefined &&
+                val.quantity !== null
+              ) {
+                return `<li><strong>${capitalize(key)}:</strong>
+                     <ul>
+                       <li><strong>Quantity:</strong> ${val.quantity}</li>
+                     </ul>
+                   </li>`;
+              }
+              return "";
+            }
+            return `<li><strong>${capitalize(key)}:</strong> ${val}</li>`;
+          }
+
+          var settingsHtml = Object.keys(settings)
+            .map(function (key) {
+              return fieldRow(key, settings[key]);
+            })
+            .join("");
+
+          var html = `
+              <div>
+                <strong>Brand:</strong> ${brand.name}<br>
+                <strong>Family:</strong> ${family.name}<br>
+                <strong>Model:</strong> ${model.name}<br>
+                <hr>
+                <ul>
+                  ${settingsHtml}
+                </ul>
+              </div>`;
+
+          $(".model-details").html(html);
+          $(".brand-list-section").hide();
+          $(".family-list-section").hide();
+          $(".model-list-section").hide();
+          $(".model-details-section").show();
+        }
+
+        renderBrandList();
       });
     },
 

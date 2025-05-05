@@ -1,159 +1,37 @@
-<div class="section-wrapper">
-  <div id="phone-models-list">
-    {{#each phone_models}} <!-- brand level -->
-      {{#with this as |brand|}}
-        {{#each brand.families}} <!-- family level -->
-          {{#with this as |family|}}
-            {{#each family.models}} <!-- model level -->
-              {{#with this as |model|}}
-                {{#each model.settings}} <!-- settings level -->
-                  <div id="{{model.id}}" class="phone-model-entry">
-                    <strong>ID:</strong> {{model.id}}<br />
-                    <strong>Brand:</strong> {{brand.name}}<br />
-                    <strong>Family:</strong> {{family.name}}<br />
-                    <strong>Model:</strong> {{model.name}}<br />
-
-                    <ul>
-                      {{#if user_agent}}<li><strong>User Agent:</strong> {{user_agent}}</li>{{/if}}
-                      {{#if template_file}}<li><strong>Template File:</strong> {{template_file}}</li>{{/if}}
-                      {{#if token_use_limit}}<li><strong>Token Limit:</strong> {{token_use_limit}}</li>{{/if}}
-                      {{#if provisioning_protocol}}<li><strong>Protocol:</strong> {{provisioning_protocol}}</li>{{/if}}
-                      {{#if content_type}}<li><strong>Content-Type:</strong> {{content_type}}</li>{{/if}}
-                      {{#if combo_keys.quantity}}<li><strong>Combo Keys:</strong> {{combo_keys.quantity}}</li>{{/if}}
-                      {{#if feature_keys.quantity}}<li><strong>Feature Keys:</strong> {{feature_keys.quantity}}</li>{{/if}}
-                      {{#if voicemail_code}}<li><strong>VM Code:</strong> {{voicemail_code}}</li>{{/if}}
-                      {{#if firmware.version}}<li><strong>Firmware Version:</strong> {{firmware.version}}</li>{{/if}}
-                      {{#if firmware.upgrades.length}}
-                        <li><strong>Upgrades:</strong>
-                          <ul>
-                            {{#each firmware.upgrades}}
-                              <li>From <code>{{this.from}}</code> to <code>{{this.to}}</code></li>
-                            {{/each}}
-                          </ul>
-                        </li>
-                      {{/if}}
-                    </ul>
-                  </div>
-                {{/each}}
-              {{/with}}
-            {{/each}}
-          {{/with}}
+<div class="section-wrapper" id="phone-models-drilldown">
+  <div class="phonemodels-drilldown">
+    <!-- Brand Select -->
+    <div class="brand-list-section">
+      <h3>Select Brand</h3>
+      <ul class="brand-list">
+        {{#each phone_models}}
+        <li class="brand-item" data-brand-idx="{{@index}}">{{this.name}}</li>
         {{/each}}
-      {{/with}}
-    {{else}}
-      <div>{{ @root.i18n.provisioner.phoneModels.noPhoneModels }}</div>
-    {{/each}}
-  </div>
-
-  <hr />
-
-  <!-- Phone Identity -->
-  <fieldset>
-    <legend>Phone Identity</legend>
-
-    <div class="form-row">
-      <label for="brand">Brand</label>
-      <input type="text" id="brand" placeholder="e.g. yealink" />
-      <span>(required)</span>
+      </ul>
     </div>
-
-    <div class="form-row">
-      <label for="family">Family</label>
-      <input type="text" id="family" placeholder="e.g. t4x" />
-      <span>(required)</span>
+    <!-- Family Select -->
+    <div class="family-list-section" style="display: none">
+      <button type="button" class="back-to-brands btn btn-secondary">
+        &larr; Back to Brands
+      </button>
+      <h3>Select Family</h3>
+      <ul class="family-list"></ul>
     </div>
-
-    <div class="form-row">
-      <label for="model">Model</label>
-      <input type="text" id="model" placeholder="e.g. t46u" />
-      <span>(required)</span>
+    <!-- Model Select -->
+    <div class="model-list-section" style="display: none">
+      <button type="button" class="back-to-families btn btn-secondary">
+        &larr; Back to Families
+      </button>
+      <h3>Select Model</h3>
+      <ul class="model-list"></ul>
     </div>
-  </fieldset>
-
-  <!-- Phone Settings -->
-  <fieldset>
-    <legend>Settings</legend>
-
-    <div class="form-row">
-      <label for="user_agent">User Agent</label>
-      <input type="text" id="user_agent" placeholder="Yealink SIP-T46U" />
-      <span>(required)</span>
+    <!-- Model Details -->
+    <div class="model-details-section" style="display: none">
+      <button type="button" class="back-to-models btn btn-secondary">
+        &larr; Back to Models
+      </button>
+      <h3>Model Details</h3>
+      <div class="model-details"></div>
     </div>
-
-    <div class="form-row">
-      <label for="template_file">Template File</label>
-      <input type="text" id="template_file" placeholder="yealink.xcfg" />
-      <span>(optional)</span>
-    </div>
-
-    <div class="form-row">
-      <label for="token_use_limit">Token Limit</label>
-      <input type="number" id="token_use_limit" placeholder="e.g. 3" />
-      <span>(optional)</span>
-    </div>
-
-    <div class="form-row">
-      <label for="provisioning_protocol">Protocol</label>
-      <input type="text" id="provisioning_protocol" placeholder="HTTP:8080" />
-      <span>(optional)</span>
-    </div>
-
-    <div class="form-row">
-      <label for="content_type">Content-Type</label>
-      <input type="text" id="content_type" placeholder="text/xml" />
-      <span>(optional)</span>
-    </div>
-
-    <!-- Combo Keys & Feature Keys -->
-    <div class="form-subsection">
-      <strong>Combo Keys:</strong>
-      <div class="form-row">
-        <label for="combo_keys">Quantity</label>
-        <input type="number" id="combo_keys" placeholder="e.g. 15" />
-        <span>(optional)</span>
-      </div>
-    </div>
-
-    <div class="form-subsection">
-      <strong>Feature Keys:</strong>
-      <div class="form-row">
-        <label for="feature_keys">Quantity</label>
-        <input type="number" id="feature_keys" placeholder="e.g. 4" />
-        <span>(optional)</span>
-      </div>
-    </div>
-
-    <div class="form-row">
-      <label for="voicemail_code">VM Code</label>
-      <input type="text" id="voicemail_code" placeholder="e.g. *97" />
-      <span>(optional)</span>
-    </div>
-
-    <!-- Firmware -->
-    <div class="form-row">
-      <strong>Firmware:</strong>
-      <div class="form-row">
-        <label for="firmware_version">Version</label>
-        <input type="text" id="firmware_version" placeholder="108.86.0.70" />
-        <span>(optional)</span>
-      </div>
-
-      <div class="form-row">
-        <label>Upgrades</label>
-        <div id="upgrades-list">
-          <div class="upgrade-entry">
-            <input type="text" placeholder="From version" class="upgrade-from" />
-            <input type="text" placeholder="To version" class="upgrade-to" />
-            <span>(optional)</span>
-          </div>
-        </div>
-      </div>
-      </div>
-    </div>
-  </fieldset>
-  <div id="devicepassword-set" class="form-control">
-    <button id="phone-model-add-button" class="btn btn-primary">
-      {{ i18n.provisioner.phoneModels.addPhoneModelButton }}
-    </button>
   </div>
 </div>
