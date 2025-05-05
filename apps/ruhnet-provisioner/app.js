@@ -118,7 +118,7 @@ define(function (require) {
       },
       "provisioner.account_customconfig.delete": {
         apiRoot: monster.config.api.provisioner,
-        url: "api/{accountId}/customconfig",
+        url: "api/{accountId}/customconfig/{groupname}",
         verb: "DELETE",
       },
       //phone models
@@ -321,12 +321,10 @@ define(function (require) {
 
         $(".dialplan-settings").empty().append($dialplan);
 
-        // Delete button
         $(".dialplan-delete").on("click", function () {
           self.deleteDialplanSettings();
         });
 
-        // Save button
         $("#save-dialplan").on("click", function () {
           const digitMap = $("#digit_map").val();
           const dialDelay = parseInt($("#dial_delay").val(), 10);
@@ -359,8 +357,155 @@ define(function (require) {
         );
 
         $(".custom-config").empty().append($customConfig);
+        const configData = [
+          {
+            id: "polycom",
+            name: "polycom",
+            families: [
+              {
+                id: "polycom_ccx",
+                name: "ccx",
+                models: [{ id: "polycom_ccx_500", name: "500" }],
+              },
+              {
+                id: "polycom_spip",
+                name: "spip",
+                models: [
+                  { id: "polycom_spip_335", name: "335" },
+                  { id: "polycom_spip_430", name: "430" },
+                  { id: "polycom_spip_450", name: "450" },
+                  { id: "polycom_spip_550", name: "550" },
+                  { id: "polycom_spip_600", name: "600" },
+                  { id: "polycom_spip_650", name: "650" },
+                  { id: "polycom_spip_670", name: "670" },
+                ],
+              },
+              {
+                id: "polycom_vvx",
+                name: "vvx",
+                models: [
+                  { id: "polycom_vvx_250", name: "250" },
+                  { id: "polycom_vvx_301", name: "301" },
+                  { id: "polycom_vvx_410", name: "410" },
+                  { id: "polycom_vvx_500", name: "500" },
+                  { id: "polycom_vvx_501", name: "501" },
+                  { id: "polycom_vvx_600", name: "600" },
+                  { id: "polycom_vvx_601", name: "601" },
+                ],
+              },
+            ],
+          },
+          {
+            id: "yealink",
+            name: "yealink",
+            families: [
+              {
+                id: "yealink_",
+                name: "",
+                models: [{ id: "yealink__t46u", name: "t46u" }],
+              },
+              {
+                id: "yealink_ax",
+                name: "ax",
+                models: [{ id: "yealink_ax_ax83h", name: "ax83h" }],
+              },
+              {
+                id: "yealink_t2x",
+                name: "t2x",
+                models: [{ id: "yealink_t2x_t29g", name: "t29g" }],
+              },
+              {
+                id: "yealink_t4x",
+                name: "t4x",
+                models: [
+                  { id: "yealink_t4x_t40g", name: "t40g" },
+                  { id: "yealink_t4x_t42g", name: "t42g" },
+                  { id: "yealink_t4x_t42s", name: "t42s" },
+                  { id: "yealink_t4x_t46g", name: "t46g" },
+                  { id: "yealink_t4x_t46s", name: "t46s" },
+                  { id: "yealink_t4x_t46u", name: "t46u" },
+                ],
+              },
+              {
+                id: "yealink_t5x",
+                name: "t5x",
+                models: [{ id: "yealink_t5x_t54w", name: "t54w" }],
+              },
+              {
+                id: "yealink_w5x",
+                name: "w5x",
+                models: [
+                  { id: "yealink_w5x_w52p", name: "w52p" },
+                  { id: "yealink_w5x_w60p", name: "w60p" },
+                  { id: "yealink_w5x_w70b", name: "w70b" },
+                ],
+              },
+            ],
+          },
+        ];
+        const $brand = $("#config-brand");
+        configData.forEach((brand) => {
+          $brand.append(`<option value="${brand.id}">${brand.name}</option>`);
+        });
 
-        // Save button
+        $brand.on("change", function () {
+          const selectedBrand = $(this).val();
+          const $family = $("#config-family").empty().prop("disabled", true);
+          const $model = $("#config-model").empty().prop("disabled", true);
+
+          $family.append(`<option value="">Select family</option>`);
+          $model.append(`<option value="">Select model</option>`);
+
+          const brandObj = configData.find((b) => b.id === selectedBrand);
+          if (brandObj) {
+            brandObj.families.forEach((fam) => {
+              $family.append(
+                `<option value="${fam.id}">${fam.name || fam.id}</option>`
+              );
+            });
+            $family.prop("disabled", false);
+          }
+        });
+
+        $("#config-family").on("change", function () {
+          const selectedBrand = $("#config-brand").val();
+          const selectedFamily = $(this).val();
+          const $model = $("#config-model").empty().prop("disabled", true);
+          $model.append(`<option value="">Select model</option>`);
+
+          const brandObj = configData.find((b) => b.id === selectedBrand);
+          if (brandObj) {
+            const familyObj = brandObj.families.find(
+              (f) => f.id === selectedFamily
+            );
+            if (familyObj) {
+              familyObj.models.forEach((m) => {
+                $model.append(`<option value="${m.id}">${m.name}</option>`);
+              });
+              $model.prop("disabled", false);
+            }
+          }
+        });
+        $(".custom-config")
+          .off("click", "#add-kv-row")
+          .on("click", "#add-kv-row", function () {
+            var $row = $(
+              '<div class="config-kv-row">\
+            <input class="config-key" type="text" placeholder="Key (e.g., features.config_dsskey_length)">\
+            <input class="config-value" type="text" placeholder="Value (e.g., 2)">\
+            <button class="remove-kv btn btn-link">&times;</button>\
+            </div>'
+            );
+            $("#config-kv-list").append($row);
+            $row.find(".remove-kv").show();
+          });
+
+        $(".custom-config")
+          .off("click", ".remove-kv")
+          .on("click", ".remove-kv", function () {
+            $(this).closest(".config-kv-row").remove();
+          });
+
         $("#save-custom-config").on("click", function () {
           try {
             const parsed = JSON.parse($("#custom-config-input").val());
@@ -370,35 +515,62 @@ define(function (require) {
           }
         });
 
-        // Delete button
         $(".custom-config-delete").on("click", function () {
           self.deleteCustomConfig();
         });
 
-        // Add custom config entry
         $("#add-config-button").on("click", function () {
           const brand = $("#config-brand").val().trim();
           const family = $("#config-family").val().trim();
           const model = $("#config-model").val().trim();
-          const key = $("#config-key").val().trim();
-          const value = $("#config-value").val().trim();
+          const group = $("#config-group").val().trim();
 
-          if (!brand || !family || !model || !key || !value) {
-            monster.ui.alert("All fields are required.");
+          if (!brand || !family || !model || !group) {
+            monster.ui.alert("Brand, Family, Model, and Group are required.");
             return;
           }
+
+          let anyError = false;
+          const kvPairs = [];
+          $("#config-kv-list .config-kv-row").each(function () {
+            const k = $(this).find(".config-key").val().trim();
+            const v = $(this).find(".config-value").val().trim();
+            if (!k || !v) anyError = true;
+            kvPairs.push([k, v]);
+          });
+
+          if (anyError) {
+            monster.ui.alert("Every key/value field must be filled in.");
+            return;
+          }
+          if (kvPairs.length === 0) {
+            monster.ui.alert("At least one key/value pair is required.");
+            return;
+          }
+
+          const modelObj = {};
+          kvPairs.forEach(([k, v]) => {
+            modelObj[k] = v;
+          });
 
           const config = {
             [brand]: {
               [family]: {
-                [model]: {
-                  [key]: value,
-                },
+                [model]: modelObj,
               },
             },
           };
 
-          self.setCustomConfig(config);
+          self.setCustomConfig(config, group);
+
+          $("#config-kv-list").html(
+            '<div class="config-kv-row">\
+            <input class="config-key" type="text" placeholder="Key (e.g., features.config_dsskey_length)">\
+            <input class="config-value" type="text" placeholder="Value (e.g., 2)">\
+            <button class="remove-kv btn btn-link" style="display:none;">&times;</button>\
+            </div>'
+          );
+          $("#config-key, #config-value").val("");
         });
       });
     },
@@ -443,7 +615,6 @@ define(function (require) {
               }
             });
 
-            // Helper functions for cleaning up values
             var getVal = function (id) {
               var val = $("#" + id)
                 .val()
@@ -993,7 +1164,7 @@ define(function (require) {
       });
     },
 
-    setCustomConfig: function (config) {
+    setCustomConfig: function (config, group) {
       var self = this;
 
       monster.request({
@@ -1001,6 +1172,7 @@ define(function (require) {
         data: {
           accountId: self.accountId,
           userId: monster.apps.auth.currentUser.id,
+          group: group,
           data: config,
         },
         success: function () {

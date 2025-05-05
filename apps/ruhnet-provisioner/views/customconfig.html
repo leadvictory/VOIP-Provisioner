@@ -1,7 +1,6 @@
 <div class="section-wrapper">
   <h4 id="custom-config-title">{{ i18n.provisioner.customConfig.title }}</h4>
 
-  <!-- Display current config -->
   <div class="form-control">
     <textarea id="custom-config-input" rows="10" style="width: 99%">
 {{custom_config}}</textarea
@@ -16,18 +15,58 @@
 
   <hr />
 
-  <!-- Add new config setting -->
   <div class="form-control">
     <label>Add Custom Config Setting</label>
-    <input type="text" id="config-brand" placeholder="Brand (e.g., yealink)" />
-    <input type="text" id="config-family" placeholder="Family (e.g., t4x)" />
-    <input type="text" id="config-model" placeholder="Model (e.g., t48u)" />
-    <input
-      type="text"
-      id="config-key"
-      placeholder="Key (e.g., features.config_dsskey_length)"
-    />
-    <input type="text" id="config-value" placeholder="Value (e.g., 2)" />
+    <div class="form-row">
+      <label for="config-brand">Brand</label>
+      <select id="config-brand">
+        <option value="">Select brand</option>
+      </select>
+    </div>
+
+    <div class="form-row">
+      <label for="config-family">Family</label>
+      <select id="config-family" disabled>
+        <option value="">Select family</option>
+      </select>
+    </div>
+
+    <div class="form-row">
+      <label for="config-model">Model</label>
+      <select id="config-model" disabled>
+        <option value="">Select model</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label for="config-location">Group</label>
+      <select id="config-location">
+        <option value="">Select group</option>
+        <option value="frontdesk">Front Desk</option>
+        <option value="lobby">Lobby</option>
+        <option value="roomphones">Room Phones</option>
+      </select>
+    </div>
+    <br />
+    <div id="config-kv-list">
+      <div class="config-kv-row">
+        <input
+          class="config-key"
+          type="text"
+          placeholder="Key (e.g., features.config_dsskey_length)"
+        />
+        <input class="config-value" type="text" placeholder="Value (e.g., 2)" />
+        <button class="remove-kv btn btn-link" style="display: none">
+          &times;
+        </button>
+      </div>
+    </div>
+    <button
+      id="add-kv-row"
+      class="btn btn-secondary"
+      style="margin: 7px 0 7px 0"
+    >
+      +
+    </button>
     <br />
     <button id="add-config-button" class="btn btn-primary">Add Setting</button>
   </div>

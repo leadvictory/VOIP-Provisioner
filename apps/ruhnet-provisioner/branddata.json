@@ -1,0 +1,86 @@
+[
+  {
+    "id": "polycom",
+    "name": "polycom",
+    "families": [
+      {
+        "id": "polycom_ccx",
+        "name": "ccx",
+        "models": [{ "id": "polycom_ccx_500", "name": "500" }]
+      },
+      {
+        "id": "polycom_spip",
+        "name": "spip",
+        "models": [
+          { "id": "polycom_spip_335", "name": "335" },
+          { "id": "polycom_spip_430", "name": "430" },
+          { "id": "polycom_spip_450", "name": "450" },
+          { "id": "polycom_spip_550", "name": "550" },
+          { "id": "polycom_spip_600", "name": "600" },
+          { "id": "polycom_spip_650", "name": "650" },
+          { "id": "polycom_spip_670", "name": "670" }
+        ]
+      },
+      {
+        "id": "polycom_vvx",
+        "name": "vvx",
+        "models": [
+          { "id": "polycom_vvx_250", "name": "250" },
+          { "id": "polycom_vvx_301", "name": "301" },
+          { "id": "polycom_vvx_410", "name": "410" },
+          { "id": "polycom_vvx_500", "name": "500" },
+          { "id": "polycom_vvx_501", "name": "501" },
+          { "id": "polycom_vvx_600", "name": "600" },
+          { "id": "polycom_vvx_601", "name": "601" }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "yealink",
+    "name": "yealink",
+    "families": [
+      {
+        "id": "yealink_",
+        "name": "",
+        "models": [{ "id": "yealink__t46u", "name": "t46u" }]
+      },
+      {
+        "id": "yealink_ax",
+        "name": "ax",
+        "models": [{ "id": "yealink_ax_ax83h", "name": "ax83h" }]
+      },
+      {
+        "id": "yealink_t2x",
+        "name": "t2x",
+        "models": [{ "id": "yealink_t2x_t29g", "name": "t29g" }]
+      },
+      {
+        "id": "yealink_t4x",
+        "name": "t4x",
+        "models": [
+          { "id": "yealink_t4x_t40g", "name": "t40g" },
+          { "id": "yealink_t4x_t42g", "name": "t42g" },
+          { "id": "yealink_t4x_t42s", "name": "t42s" },
+          { "id": "yealink_t4x_t46g", "name": "t46g" },
+          { "id": "yealink_t4x_t46s", "name": "t46s" },
+          { "id": "yealink_t4x_t46u", "name": "t46u" }
+        ]
+      },
+      {
+        "id": "yealink_t5x",
+        "name": "t5x",
+        "models": [{ "id": "yealink_t5x_t54w", "name": "t54w" }]
+      },
+      {
+        "id": "yealink_w5x",
+        "name": "w5x",
+        "models": [
+          { "id": "yealink_w5x_w52p", "name": "w52p" },
+          { "id": "yealink_w5x_w60p", "name": "w60p" },
+          { "id": "yealink_w5x_w70b", "name": "w70b" }
+        ]
+      }
+    ]
+  }
+]
