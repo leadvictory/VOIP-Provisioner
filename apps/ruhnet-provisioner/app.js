@@ -1406,6 +1406,26 @@ define(function (require) {
         },
       });
     },
+
+    removeDeviceLock: function (macAddress) {
+      var self = this;
+
+      monster.request({
+        resource: "provisioner.device_lock.delete",
+        data: {
+          accountId: self.accountId,
+          mac_address: macAddress,
+        },
+        success: function (response) {
+          monster.ui.alert("Device lock removed successfully.");
+          console.log(response);
+        },
+        error: function (error) {
+          monster.ui.alert("Failed to remove device lock.");
+          console.error(error);
+        },
+      });
+    },
     ////////////////////////////////////////////////////////
   };
 
