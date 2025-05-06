@@ -38,13 +38,34 @@
       </select>
     </div>
     <div class="form-row">
-      <label for="config-location">Group</label>
-      <select id="config-location">
+      <label for="config-group">Group</label>
+      <select id="config-group">
         <option value="">Select group</option>
-        <option value="frontdesk">Front Desk</option>
-        <option value="lobby">Lobby</option>
-        <option value="roomphones">Room Phones</option>
       </select>
+      <button type="button" id="show-new-group" class="btn btn-secondary">
+        + Add Group
+      </button>
+    </div>
+    <div
+      class="form-row"
+      id="new-group-container"
+      style="display: none; margin-top: 10px"
+    >
+      <input
+        type="text"
+        id="new-group-name"
+        class="form-control"
+        placeholder="Enter new group name"
+        style="width: 70%; display: inline-block"
+      />
+      <button
+        type="button"
+        id="save-new-group"
+        class="btn btn-primary"
+        style="margin-left: 10px"
+      >
+        Save Group
+      </button>
     </div>
     <br />
     <div id="config-kv-list">

@@ -1,0 +1,30 @@
+<div class="section-wrapper">
+  <h4 id="device-settings-description">
+    {{@root.i18n.provisioner.deviceSetting.description}}
+  </h4>
+
+  {{#if devices.length}}
+  <table>
+    <thead>
+      <tr>
+        <th style="text-align: left">
+          {{@root.i18n.provisioner.deviceSetting.deviceName}}
+        </th>
+        <th style="text-align: left">
+          {{@root.i18n.provisioner.deviceSetting.macAddress}}
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each devices}}
+      <tr data-id="{{id}}">
+        <td style="text-align: left">{{name}}</td>
+        <td style="text-align: left">{{mac_address}}</td>
+      </tr>
+      {{/each}}
+    </tbody>
+  </table>
+  {{else}}
+  <div>{{@root.i18n.provisioner.deviceSetting.noDevices}}</div>
+  {{/if}}
+</div>

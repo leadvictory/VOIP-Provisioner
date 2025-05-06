@@ -142,6 +142,16 @@ define(function (require) {
         url: "api/phones",
         verb: "PUT",
       },
+      "provisioner.account_groups.list": {
+        apiRoot: monster.config.api.provisioner,
+        url: "api/{accountId}/groups",
+        verb: "GET",
+      },
+      "provisioner.account_groups.save": {
+        apiRoot: monster.config.api.provisioner,
+        url: "api/{accountId}/groups/{newgruopname",
+        verb: "PUT",
+      },
     },
 
     // Define the events available for other apps
@@ -443,6 +453,45 @@ define(function (require) {
             ],
           },
         ];
+
+        self.getGroups(function (groups) {
+          const $group = $("#config-group");
+          $group.empty().append(`<option value="">Select group</option>`);
+
+          groups.forEach((group) => {
+            $group.append(
+              `<option value="${group.id}">${group.name || group.id}</option>`
+            );
+          });
+        });
+        $("#show-new-group").on("click", function () {
+          $("#new-group-container").toggle();
+        });
+
+        $("#save-new-group").on("click", function () {
+          const newGroup = $("#new-group-name").val().trim();
+
+          if (!newGroup) {
+            monster.ui.alert("Group name cannot be empty.");
+            return;
+          }
+
+          self.saveGroup(newGroup, function (success) {
+            if (success) {
+              const $group = $("#config-group");
+              if (!$group.find(`option[value="${newGroup}"]`).length) {
+                $group.append(
+                  `<option value="${newGroup}">${newGroup}</option>`
+                );
+              }
+
+              $group.val(newGroup);
+              $("#new-group-container").hide();
+              $("#new-group-name").val("");
+            }
+          });
+        });
+
         const $brand = $("#config-brand");
         configData.forEach((brand) => {
           $brand.append(`<option value="${brand.id}">${brand.name}</option>`);
@@ -577,7 +626,19 @@ define(function (require) {
 
     loadDeviceTable: function () {
       var self = this;
-      $(".device-table").html("<p>Devices list will load here</p>");
+
+      self.listDevices(function (devices) {
+        const $deviceTable = $(
+          self.getTemplate({
+            name: "devicesetting", // maps to id="template-device-settings"
+            data: {
+              devices: devices,
+            },
+          })
+        );
+
+        $(".device-table").empty().append($deviceTable);
+      });
     },
 
     loadDeviceActions: function () {
@@ -1226,6 +1287,58 @@ define(function (require) {
       });
     },
 
+    getGroups: function (callback) {
+      var self = this;
+
+      monster.request({
+        resource: "provisioner.account_groups.list",
+        data: {
+          accountId: self.accountId,
+        },
+        success: function (res) {
+          console.log("Groups Raw Data:", res.data);
+
+          // Convert object of groups into an array
+          const groupsObject = res.data;
+          const groups = Object.keys(groupsObject).map((key) => ({
+            id: key,
+            name: groupsObject[key].name || key,
+          }));
+
+          callback(groups);
+        },
+        error: function (res) {
+          monster.ui.alert("Failed to get groups.");
+          callback([]);
+        },
+      });
+    },
+
+    saveGroup: function (groupName, callback) {
+      var self = this;
+
+      monster.request({
+        resource: "provisioner.account_groups.save",
+        data: {
+          accountId: self.accountId,
+          data: {
+            name: groupName,
+          },
+        },
+        success: function () {
+          monster.ui.toast({
+            type: "success",
+            message: "Group saved successfully.",
+          });
+          callback && callback(true);
+        },
+        error: function () {
+          monster.ui.alert("Failed to save the group.");
+          callback && callback(false);
+        },
+      });
+    },
+
     addPhoneModel: function (modelData) {
       var self = this;
 
@@ -1268,6 +1381,28 @@ define(function (require) {
             monster.ui.alert("ERROR: Failed to get phone models");
             callback([]);
           }
+        },
+      });
+    },
+
+    listDevices: function (callback) {
+      var self = this;
+      self.callApi({
+        resource: "device.list",
+        data: {
+          accountId: self.accountId,
+          filters: {
+            paginate: false,
+          },
+        },
+        success: function (devices) {
+          //console.log(devices.data);
+          callback(devices.data);
+        },
+        error: function (err) {
+          console.log("Error in listDevices:");
+          console.log(err);
+          callback([]);
         },
       });
     },
