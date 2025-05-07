@@ -159,17 +159,17 @@ define(function (require) {
       },
       "provisioner.device_custom_config.list": {
         apiRoot: monster.config.api.provisioner,
-        url: "/api/{accountId}/devicepassword",
+        url: "/api/{accountId}/{mac_address}/customconfig",
         verb: "GET",
       },
       "provisioner.device_custom_config.add": {
         apiRoot: monster.config.api.provisioner,
-        url: "/api/{accountId}/devicepassword",
+        url: "/api/{accountId}/{mac_address}/customconfig",
         verb: "POST",
       },
       "provisioner.device_custom_config.delete": {
         apiRoot: monster.config.api.provisioner,
-        url: "/api/{accountId}/devicepassword",
+        url: "/api/{accountId}/{mac_address}/customconfig",
         verb: "DELETE",
       },
     },
@@ -660,6 +660,11 @@ define(function (require) {
         $deviceTable.on("click", ".unlock-device", function () {
           const macAddress = $(this).data("mac");
           self.removeDeviceLock(macAddress);
+        });
+        $deviceTable.on("click", ".device-custom", function () {
+          const $row = $(this).closest("tr");
+          const macAddress = $row.find("[data-mac]").data("mac"); // or use data-mac if more reliable
+          self.showCustomConfigModal(macAddress);
         });
       });
     },
@@ -1474,7 +1479,7 @@ define(function (require) {
       var self = this;
 
       monster.request({
-        resource: "provisioner.custom_config.add",
+        resource: "provisioner.device_custom_config.add",
         data: {
           accountId: self.accountId,
           mac_address: macAddress,
@@ -1510,6 +1515,66 @@ define(function (require) {
         },
       });
     },
+
+    showCustomConfigModal: function (macAddress) {
+      var self = this;
+
+      const $modal = $(
+        self.getTemplate({
+          name: "customconfigmodal",
+          data: { macAddress: macAddress },
+        })
+      );
+
+      $("body").append($modal);
+
+      $modal.on("click", ".add-config-pair", function () {
+        var html =
+          '<div class="config-pair" style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">' +
+          "<label>Key:</label>" +
+          '<input type="text" class="config-key" placeholder="Key" style="flex: 1;" />' +
+          "<label>Value:</label>" +
+          '<input type="text" class="config-value" placeholder="Value" style="flex: 1;" />' +
+          '<button type="button" class="remove-pair" style="background: #e74c3c; color: white; border: none; padding: 4px 8px; cursor: pointer;">🗑</button>' +
+          "</div>";
+
+        $modal.find(".config-fields").append($(html));
+      });
+
+      $modal.on("click", ".remove-pair", function () {
+        $(this).closest(".config-pair").remove();
+      });
+      // Close modal
+      $modal.on("click", ".close-modal", function () {
+        $modal.remove();
+      });
+
+      // Submit config
+      $modal.on("click", ".submit-custom-config", function () {
+        const config = {};
+
+        let valid = true;
+        $modal.find(".config-pair").each(function () {
+          const key = $(this).find(".config-key").val().trim();
+          const value = $(this).find(".config-value").val().trim();
+
+          if (key && value) {
+            config[key] = value;
+          } else {
+            valid = false;
+          }
+        });
+
+        if (!valid) {
+          monster.ui.alert("Please fill out all key and value fields.");
+          return;
+        }
+
+        self.addDeviceCustomConfig(macAddress, config);
+        $modal.remove();
+      });
+    },
+
     ////////////////////////////////////////////////////////
   };
 

@@ -1,0 +1,63 @@
+<div class="section-wrapper">
+  <div class="modal-overlay">
+    <div class="device-modal">
+      <h3>Custom Config for {{macAddress}}</h3>
+      <div class="config-fields" style="margin-top: 15px">
+        {{#each customConfig}}
+        <div
+          class="config-pair"
+          style="
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+          "
+        >
+          <label>Key:</label>
+          <input
+            type="text"
+            class="config-key"
+            value="{{@key}}"
+            style="flex: 1"
+          />
+          <label>Value:</label>
+          <input
+            type="text"
+            class="config-value"
+            value="{{this}}"
+            style="flex: 1"
+          />
+          <button type="button" class="remove-pair">🗑</button>
+        </div>
+        {{/each}}
+      </div>
+      <div class="config-fields" style="margin-top: 15px">
+        <div class="config-pair">
+          <label>Key:</label>
+          <input
+            type="text"
+            class="config-key"
+            placeholder="e.g. features.config_dsskey_length"
+            style="flex: 1"
+          />
+          <label>Value:</label>
+          <input
+            type="text"
+            class="config-value"
+            placeholder="e.g. 2"
+            style="flex: 1"
+          />
+          <button type="button" class="remove-pair">🗑</button>
+        </div>
+      </div>
+
+      <button type="button" class="add-config-pair">➕ Add</button>
+
+      <div class="modal-actions" style="text-align: right">
+        <button class="submit-custom-config">Submit</button>
+        <button class="btn btn-danger">Delete</button>
+        <button class="close-modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
