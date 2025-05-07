@@ -13,6 +13,7 @@
         <th style="text-align: left">
           {{@root.i18n.provisioner.deviceSetting.macAddress}}
         </th>
+        <th style="text-align: left">Actions</th>
       </tr>
     </thead>
     <tbody>
@@ -20,6 +21,14 @@
       <tr data-id="{{id}}">
         <td style="text-align: left">{{name}}</td>
         <td style="text-align: left">{{mac_address}}</td>
+        <td style="text-align: left">
+          <button class="unlock-device" data-mac="{{mac_address}}">
+            Unlock
+          </button>
+        </td>
+        <td style="text-align: left">
+          <button class="device-custom">Custom Config</button>
+        </td>
       </tr>
       {{/each}}
     </tbody>

@@ -149,8 +149,28 @@ define(function (require) {
       },
       "provisioner.account_groups.save": {
         apiRoot: monster.config.api.provisioner,
-        url: "api/{accountId}/groups/{newgruopname",
+        url: "api/{accountId}/groups/{newgruopname}",
         verb: "PUT",
+      },
+      "provisioner.device_lock.delete": {
+        apiRoot: monster.config.api.provisioner,
+        url: "api/locks/{accountId}/{mac_address}",
+        verb: "DELETE",
+      },
+      "provisioner.device_custom_config.list": {
+        apiRoot: monster.config.api.provisioner,
+        url: "/api/{accountId}/devicepassword",
+        verb: "GET",
+      },
+      "provisioner.device_custom_config.add": {
+        apiRoot: monster.config.api.provisioner,
+        url: "/api/{accountId}/devicepassword",
+        verb: "POST",
+      },
+      "provisioner.device_custom_config.delete": {
+        apiRoot: monster.config.api.provisioner,
+        url: "/api/{accountId}/devicepassword",
+        verb: "DELETE",
       },
     },
 
@@ -630,14 +650,17 @@ define(function (require) {
       self.listDevices(function (devices) {
         const $deviceTable = $(
           self.getTemplate({
-            name: "devicesetting", // maps to id="template-device-settings"
-            data: {
-              devices: devices,
-            },
+            name: "devicesetting",
+            data: { devices: devices },
           })
         );
 
         $(".device-table").empty().append($deviceTable);
+
+        $deviceTable.on("click", ".unlock-device", function () {
+          const macAddress = $(this).data("mac");
+          self.removeDeviceLock(macAddress);
+        });
       });
     },
 
@@ -1422,6 +1445,67 @@ define(function (require) {
         },
         error: function (error) {
           monster.ui.alert("Failed to remove device lock.");
+          console.error(error);
+        },
+      });
+    },
+
+    getDeviceCustomConfig: function (macAddress) {
+      var self = this;
+
+      monster.request({
+        resource: "provisioner.device_custom_config.list",
+        data: {
+          accountId: self.accountId,
+          mac_address: macAddress,
+        },
+        success: function (response) {
+          monster.ui.alert("Custom config retrieved successfully.");
+          console.log(response);
+        },
+        error: function (error) {
+          monster.ui.alert("Failed to retrieve custom config.");
+          console.error(error);
+        },
+      });
+    },
+
+    addDeviceCustomConfig: function (macAddress, configData) {
+      var self = this;
+
+      monster.request({
+        resource: "provisioner.custom_config.add",
+        data: {
+          accountId: self.accountId,
+          mac_address: macAddress,
+          data: configData,
+        },
+        success: function (response) {
+          monster.ui.alert("Custom config updated successfully.");
+          console.log(response);
+        },
+        error: function (error) {
+          monster.ui.alert("Failed to update custom config.");
+          console.error(error);
+        },
+      });
+    },
+
+    deleteDeviceCustomConfig: function (macAddress) {
+      var self = this;
+
+      monster.request({
+        resource: "provisioner.custom_config.delete",
+        data: {
+          accountId: self.accountId,
+          mac_address: macAddress,
+        },
+        success: function (response) {
+          monster.ui.alert("Custom config deleted successfully.");
+          console.log(response);
+        },
+        error: function (error) {
+          monster.ui.alert("Failed to delete custom config.");
           console.error(error);
         },
       });
