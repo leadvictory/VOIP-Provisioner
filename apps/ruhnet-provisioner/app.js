@@ -172,6 +172,21 @@ define(function (require) {
         url: "api/{accountId}/{mac_address}/customconfig",
         verb: "DELETE",
       },
+      "provisioner.macdevice_password.set": {
+        apiRoot: monster.config.api.provisioner,
+        url: "api/{accountId}/{mac_address}/devicepassword",
+        verb: "POST",
+      },
+      "provisioner.macdevice_password.get": {
+        apiRoot: monster.config.api.provisioner,
+        url: "api/{accountId}/{mac_address}/devicepassword",
+        verb: "GET",
+      },
+      "provisioner.macdevice_password.delete": {
+        apiRoot: monster.config.api.provisioner,
+        url: "api/{accountId}/{mac_address}/devicepassword",
+        verb: "DELETE",
+      },
     },
 
     // Define the events available for other apps
@@ -1480,7 +1495,7 @@ define(function (require) {
           mac_address: macAddress,
         },
         success: function (response) {
-          console.log(response);
+          // console.log(response);
           if (callback) callback(response);
         },
         error: function (error) {
@@ -1502,10 +1517,10 @@ define(function (require) {
         },
         success: function (response) {
           monster.ui.alert("Custom config updated successfully.");
-          console.log(response);
+          // console.log(response);
         },
         error: function (error) {
-          console.log(data);
+          // console.log(data);
           monster.ui.alert("Failed to update custom config.");
           console.error(error);
         },
@@ -1523,7 +1538,7 @@ define(function (require) {
         },
         success: function (response) {
           monster.ui.alert("Custom config deleted successfully.");
-          console.log(response);
+          // console.log(response);
         },
         error: function (error) {
           monster.ui.alert("Failed to delete custom config.");
@@ -1623,11 +1638,6 @@ define(function (require) {
         self.deleteDeviceCustomConfig(device.mac_address);
       });
 
-      // Close modal
-      $modal.on("click", "#close-modal", function () {
-        $modal.remove();
-      });
-
       // Submit config
       $modal.on("click", "#submit-custom-config", function () {
         const config = {};
@@ -1651,8 +1661,126 @@ define(function (require) {
 
         self.addDeviceCustomConfig(device.mac_address, config);
       });
+
+      self.getmacDevicePassword(device.mac_address, function (password) {
+        const $passwordSection = $modal.find(".device-password-section");
+
+        if (password) {
+          $passwordSection.html(`
+            <div id="devicepassword" class="devicepassword-entry" style="margin-bottom: 10px;">
+              <strong>Current Password:</strong> ${password}
+              <i class="fa fa-remove devicepassword-delete" style="cursor: pointer; margin-left: 10px;" title="Delete Password"></i>
+            </div>
+            <div style="margin-top: 10px;">
+              <input id="devicepassword-set-input" type="text" placeholder="NewPa$$w0rD" class="form-control" />
+              <button id="macdevicepassword-set-button" class="btn btn-primary" style="margin-top: 5px;">Set Password</button>
+            </div>
+          `);
+        } else {
+          $passwordSection.html(`
+            <div><em>No password set</em></div>
+            <div style="margin-top: 10px;">
+              <input id="devicepassword-set-input" type="text" placeholder="NewPa$$w0rD" class="form-control" />
+              <button id="macdevicepassword-set-button" class="btn btn-primary" style="margin-top: 5px;">Set Password</button>
+            </div>
+          `);
+        }
+
+        // 👇 Move this BELOW the `.html()` call so it sees the new DOM
+        $modal
+          .find("#macdevicepassword-set-button")
+          .off("click")
+          .on("click", function () {
+            const newPassword = $modal
+              .find("#devicepassword-set-input")
+              .val()
+              .trim();
+            if (newPassword.length >= 3) {
+              self.setmacDevicePassword(device.mac_address, newPassword);
+              // $modal.remove();
+            } else {
+              monster.ui.alert(
+                "Password too short. Must be at least 3 characters."
+              );
+            }
+          });
+
+        // Delete password
+        $modal.on("click", ".devicepassword-delete", function () {
+          self.deletemacDevicePassword(device.mac_address);
+          $modal.remove();
+        });
+      });
+
+      // Close modal
+      $modal.on("click", "#close-modal", function () {
+        $modal.remove();
+      });
     },
 
+    setmacDevicePassword: function (macAddress, password) {
+      var self = this;
+      monster.request({
+        resource: "provisioner.macdevice_password.set",
+        data: {
+          accountId: self.accountId,
+          mac_address: macAddress,
+          data: {
+            password: password,
+          },
+        },
+        success: function (response) {
+          monster.ui.alert("Device password set successfully.");
+          console.log(response);
+        },
+        error: function (error) {
+          monster.ui.alert("Failed to set device password.");
+          console.error(error);
+        },
+      });
+    },
+
+    getmacDevicePassword: function (macAddress, callback) {
+      var self = this;
+
+      monster.request({
+        resource: "provisioner.macdevice_password.get",
+        data: {
+          accountId: self.accountId,
+          mac_address: macAddress,
+        },
+        success: function (response) {
+          console.log(response);
+          const password = response.data || null; // Safe access
+          console.log(password);
+          callback(password);
+        },
+        error: function (error) {
+          monster.ui.alert("Failed to get device password.");
+          console.error(error);
+        },
+      });
+    },
+
+    deletemacDevicePassword: function (macAddress) {
+      var self = this;
+
+      monster.request({
+        resource: "provisioner.macdevice_password.delete",
+        data: {
+          accountId: self.accountId,
+          mac_address: macAddress,
+        },
+        success: function (response) {
+          monster.ui.alert("Device password deleted.");
+          console.log(response);
+        },
+        error: function (error) {
+          monster.ui.alert("Failed to delete device password.");
+          console.error(error);
+        },
+      });
+    },
     ////////////////////////////////////////////////////////
   };
 

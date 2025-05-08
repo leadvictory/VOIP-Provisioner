@@ -63,6 +63,40 @@
       <button id="submit-custom-config" class="btn btn-primary">Set</button>
       <button id="delete-custom-config" class="btn btn-danger">Delete</button>
       <h3>Device Password</h3>
+      <div class="device-password-section" style="margin-top: 10px">
+        {{#if password}}
+        <div
+          id="devicepassword"
+          class="devicepassword-entry"
+          style="margin-bottom: 10px"
+        >
+          <strong>Current Password:</strong> {{password}}
+          <i
+            class="fa fa-remove devicepassword-delete"
+            style="cursor: pointer; margin-left: 10px"
+            title="Delete Password"
+          ></i>
+        </div>
+        {{else}}
+        <div><em>No password set</em></div>
+        {{/if}}
+
+        <div style="margin-top: 10px">
+          <input
+            id="devicepassword-set-input"
+            type="text"
+            placeholder="NewPa$$w0rD"
+            class="form-control"
+          />
+          <button
+            id="macdevicepassword-set-button"
+            class="btn btn-primary"
+            style="margin-top: 5px"
+          >
+            Set Password
+          </button>
+        </div>
+      </div>
       <div class="modal-actions" style="text-align: right">
         <button id="close-modal" class="btn">Close</button>
       </div>
