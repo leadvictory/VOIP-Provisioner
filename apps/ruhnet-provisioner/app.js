@@ -648,6 +648,7 @@ define(function (require) {
       var self = this;
 
       self.listDevices(function (devices) {
+        self._devices = devices;
         const $deviceTable = $(
           self.getTemplate({
             name: "devicesetting",
@@ -661,10 +662,24 @@ define(function (require) {
           const macAddress = $(this).data("mac");
           self.removeDeviceLock(macAddress);
         });
+
         $deviceTable.on("click", ".device-details", function () {
-          const $row = $(this).closest("tr");
-          const macAddress = $row.find("[data-mac]").data("mac"); // or use data-mac if more reliable
-          self.showDeviceDetails(macAddress);
+          const macAddress = $(this).data("mac");
+
+          console.log("Clicked MAC address:", macAddress);
+          console.log("All devices:", self._devices);
+
+          const device = self._devices.find(function (d) {
+            return d.mac_address === macAddress;
+          });
+
+          if (!device) {
+            console.error("Device not found for MAC:", macAddress);
+            monster.ui.alert("Device not found.");
+            return;
+          }
+
+          self.showDeviceDetails(device);
         });
       });
     },
@@ -1455,7 +1470,7 @@ define(function (require) {
       });
     },
 
-    getDeviceCustomConfig: function (macAddress) {
+    getDeviceCustomConfig: function (macAddress, callback) {
       var self = this;
 
       monster.request({
@@ -1465,8 +1480,8 @@ define(function (require) {
           mac_address: macAddress,
         },
         success: function (response) {
-          monster.ui.alert("Custom config retrieved successfully.");
           console.log(response);
+          if (callback) callback(response);
         },
         error: function (error) {
           monster.ui.alert("Failed to retrieve custom config.");
@@ -1501,7 +1516,7 @@ define(function (require) {
       var self = this;
 
       monster.request({
-        resource: "provisioner.custom_config.delete",
+        resource: "provisioner.device_custom_config.delete",
         data: {
           accountId: self.accountId,
           mac_address: macAddress,
@@ -1517,19 +1532,77 @@ define(function (require) {
       });
     },
 
-    showDeviceDetails: function (macAddress) {
+    showDeviceDetails: function (device) {
       var self = this;
 
       const $modal = $(
         self.getTemplate({
           name: "deviceDetailsModal",
-          data: { macAddress: macAddress },
+          data: {
+            deviceType: device.device_type,
+            name: device.name,
+            macAddress: device.mac_address,
+            ownerName: device.username,
+            enabled: device.enabled,
+            customConfig: device.customConfig || {},
+          },
         })
       );
 
       $("body").append($modal);
 
-      $modal.on("click", ".add-config-pair", function () {
+      self.getDeviceCustomConfig(device.mac_address, function (response) {
+        const config = response.data || {};
+
+        const filteredConfig = {};
+        Object.entries(config).forEach(([key, value]) => {
+          if (typeof value !== "object" || value === null) {
+            filteredConfig[key] = value;
+          }
+        });
+
+        // Create a wrapper for the custom config section
+        const $customConfigWrapper = $("<div>").append(
+          "<h3>Custom Config</h3>"
+        );
+
+        const $configFields = $('<div class="config-fields">');
+
+        // Loop through the filtered config and create the HTML
+        Object.entries(filteredConfig).forEach(([key, value]) => {
+          const $pair = $(document.createElement("div"))
+            .addClass("config-pair")
+            .css({
+              display: "flex",
+              "align-items": "center",
+              gap: "10px",
+              "margin-bottom": "8px",
+            }).append(`
+              <label>Key:</label>
+              <input type="text" class="config-key" value="${key}" style="flex: 1" readonly />
+              <label>Value:</label>
+              <input type="text" class="config-value" value="${value}" style="flex: 1" readonly />
+            `);
+
+          $configFields.append($pair);
+        });
+
+        // If no config exists
+        if (Object.keys(filteredConfig).length === 0) {
+          $configFields.append("<div>No Custom Config</div>");
+        }
+
+        // Append the custom config fields to the wrapper
+        $customConfigWrapper.append($configFields);
+
+        // Append the custom config section to the modal
+        $modal
+          .find(".custom-config-container")
+          .empty()
+          .append($customConfigWrapper);
+      });
+
+      $modal.on("click", "#add-config-pair", function () {
         var html =
           '<div class="config-pair" style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">' +
           "<label>Key:</label>" +
@@ -1545,13 +1618,18 @@ define(function (require) {
       $modal.on("click", ".remove-pair", function () {
         $(this).closest(".config-pair").remove();
       });
+
+      $modal.on("click", "#delete-custom-config", function () {
+        self.deleteDeviceCustomConfig(device.mac_address);
+      });
+
       // Close modal
-      $modal.on("click", ".close-modal", function () {
+      $modal.on("click", "#close-modal", function () {
         $modal.remove();
       });
 
       // Submit config
-      $modal.on("click", ".submit-custom-config", function () {
+      $modal.on("click", "#submit-custom-config", function () {
         const config = {};
 
         let valid = true;
@@ -1571,8 +1649,7 @@ define(function (require) {
           return;
         }
 
-        self.addDeviceCustomConfig(macAddress, config);
-        $modal.remove();
+        self.addDeviceCustomConfig(device.mac_address, config);
       });
     },
 

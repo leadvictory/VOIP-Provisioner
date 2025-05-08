@@ -22,7 +22,9 @@
         <td style="text-align: left">{{name}}</td>
         <td style="text-align: left">{{mac_address}}</td>
         <td style="text-align: left">
-          <button class="device-details">Details</button>
+          <button class="device-details" data-mac="{{mac_address}}">
+            Details ({{mac_address}})
+          </button>
         </td>
         <td style="text-align: left">
           <button class="unlock-device" data-mac="{{mac_address}}">

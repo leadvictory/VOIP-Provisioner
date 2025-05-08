@@ -1,79 +1,70 @@
 <div class="section-wrapper">
   <div class="modal-overlay">
     <div class="device-modal">
-      <h3>Custom Config for {{macAddress}}</h3>
-      <h4>Device Owner</h4>
-      <div class="config-pair">
-        <label>Key:</label>
-        <input
-          type="text"
-          class="config-key"
-          placeholder="e.g. features.config_dsskey_length"
-          style="flex: 1"
-        />
-        <label>Value:</label>
-        <input
-          type="text"
-          class="config-value"
-          placeholder="e.g. 2"
-          style="flex: 1"
-        />
-        <div class="config-fields" style="margin-top: 15px">
-          {{#each customConfig}}
-          <div
-            class="config-pair"
-            style="
-              display: flex;
-              align-items: center;
-              gap: 10px;
-              margin-bottom: 8px;
-            "
-          >
-            <label>Key:</label>
-            <input
-              type="text"
-              class="config-key"
-              value="{{@key}}"
-              style="flex: 1"
-            />
-            <label>Value:</label>
-            <input
-              type="text"
-              class="config-value"
-              value="{{this}}"
-              style="flex: 1"
-            />
-            <button type="button" class="remove-pair">🗑</button>
-          </div>
-          {{/each}}
+      <h3>Device Details</h3>
+      <ul style="list-style: none; padding: 0; margin-bottom: 20px">
+        <li><strong>Type:</strong> {{deviceType}}</li>
+        <li><strong>Name:</strong> {{name}}</li>
+        <li><strong>MAC Address:</strong> {{macAddress}}</li>
+        <li><strong>User:</strong> {{ownerName}}</li>
+        <li><strong>Enabled:</strong> {{#if enabled}}Yes{{else}}No{{/if}}</li>
+      </ul>
+      <div class="config-fields" style="margin-top: 15px">
+        <div class="custom-config-container" style="margin-top: 20px"></div>
+        {{#each customConfig}}
+        <div
+          class="config-pair"
+          style="
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+          "
+        >
+          <label>Key:</label>
+          <input
+            type="text"
+            class="config-key"
+            value="{{@key}}"
+            style="flex: 1"
+          />
+          <label>Value:</label>
+          <input
+            type="text"
+            class="config-value"
+            value="{{this}}"
+            style="flex: 1"
+          />
+          <button type="button" class="remove-pair">🗑</button>
         </div>
-        <div class="config-fields dynamic" style="margin-top: 15px">
-          <div class="config-pair">
-            <label>Key:</label>
-            <input
-              type="text"
-              class="config-key"
-              placeholder="e.g. features.config_dsskey_length"
-              style="flex: 1"
-            />
-            <label>Value:</label>
-            <input
-              type="text"
-              class="config-value"
-              placeholder="e.g. 2"
-              style="flex: 1"
-            />
-            <button type="button" class="remove-pair">🗑</button>
-          </div>
+        {{/each}}
+      </div>
+      <div class="config-fields dynamic" style="margin-top: 15px">
+        <div class="config-pair">
+          <label>Key:</label>
+          <input
+            type="text"
+            class="config-key"
+            placeholder="e.g. features.config_dsskey_length"
+            style="flex: 1"
+          />
+          <label>Value:</label>
+          <input
+            type="text"
+            class="config-value"
+            placeholder="e.g. 2"
+            style="flex: 1"
+          />
+          <!-- <button type="button" class="remove-pair">🗑</button> -->
+          <button id="add-config-pair">➕</button>
         </div>
+      </div>
 
-        <button type="button" class="add-config-pair">➕ Add</button>
-
-        <div class="modal-actions" style="text-align: right">
-          <button class="submit-custom-config">Submit</button>
-          <button class="btn btn-danger">Delete</button>
-          <button class="close-modal">Cancel</button>
-        </div>
+      <button id="submit-custom-config" class="btn btn-primary">Set</button>
+      <button id="delete-custom-config" class="btn btn-danger">Delete</button>
+      <h3>Device Password</h3>
+      <div class="modal-actions" style="text-align: right">
+        <button id="close-modal" class="btn">Close</button>
       </div>
     </div>
   </div>

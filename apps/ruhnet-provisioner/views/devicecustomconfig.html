@@ -1,0 +1,29 @@
+<div class="section-wrapper">
+  <div class="config-fields">
+    {{#if customConfig}} {{#each customConfig}}
+    <div
+      class="config-pair"
+      style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px"
+    >
+      <label>Key:</label>
+      <input
+        type="text"
+        class="config-key"
+        value="{{@key}}"
+        style="flex: 1"
+        readonly
+      />
+      <label>Value:</label>
+      <input
+        type="text"
+        class="config-value"
+        value="{{this}}"
+        style="flex: 1"
+        readonly
+      />
+    </div>
+    {{/each}} {{else}}
+    <div>No Custom Config</div>
+    {{/if}}
+  </div>
+</div>
