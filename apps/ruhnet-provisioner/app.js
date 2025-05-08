@@ -159,17 +159,17 @@ define(function (require) {
       },
       "provisioner.device_custom_config.list": {
         apiRoot: monster.config.api.provisioner,
-        url: "/api/{accountId}/{mac_address}/customconfig",
+        url: "api/{accountId}/{mac_address}/customconfig",
         verb: "GET",
       },
       "provisioner.device_custom_config.add": {
         apiRoot: monster.config.api.provisioner,
-        url: "/api/{accountId}/{mac_address}/customconfig",
+        url: "api/{accountId}/{mac_address}/customconfig",
         verb: "POST",
       },
       "provisioner.device_custom_config.delete": {
         apiRoot: monster.config.api.provisioner,
-        url: "/api/{accountId}/{mac_address}/customconfig",
+        url: "api/{accountId}/{mac_address}/customconfig",
         verb: "DELETE",
       },
     },
@@ -661,10 +661,10 @@ define(function (require) {
           const macAddress = $(this).data("mac");
           self.removeDeviceLock(macAddress);
         });
-        $deviceTable.on("click", ".device-custom", function () {
+        $deviceTable.on("click", ".device-details", function () {
           const $row = $(this).closest("tr");
           const macAddress = $row.find("[data-mac]").data("mac"); // or use data-mac if more reliable
-          self.showCustomConfigModal(macAddress);
+          self.showDeviceDetails(macAddress);
         });
       });
     },
@@ -1490,6 +1490,7 @@ define(function (require) {
           console.log(response);
         },
         error: function (error) {
+          console.log(data);
           monster.ui.alert("Failed to update custom config.");
           console.error(error);
         },
@@ -1516,12 +1517,12 @@ define(function (require) {
       });
     },
 
-    showCustomConfigModal: function (macAddress) {
+    showDeviceDetails: function (macAddress) {
       var self = this;
 
       const $modal = $(
         self.getTemplate({
-          name: "customconfigmodal",
+          name: "deviceDetailsModal",
           data: { macAddress: macAddress },
         })
       );
@@ -1538,7 +1539,7 @@ define(function (require) {
           '<button type="button" class="remove-pair" style="background: #e74c3c; color: white; border: none; padding: 4px 8px; cursor: pointer;">🗑</button>' +
           "</div>";
 
-        $modal.find(".config-fields").append($(html));
+        $modal.find(".config-fields.dynamic").append($(html));
       });
 
       $modal.on("click", ".remove-pair", function () {
