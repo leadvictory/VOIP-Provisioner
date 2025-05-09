@@ -5,7 +5,7 @@
       class="config-pair"
       style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px"
     >
-      <label>Key:</label>
+      <label>{{ @root.i18n.provisioner.customConfig.keyLabel }}</label>
       <input
         type="text"
         class="config-key"
@@ -13,7 +13,7 @@
         style="flex: 1"
         readonly
       />
-      <label>Value:</label>
+      <label>{{ @root.i18n.provisioner.customConfig.valueLabel }}</label>
       <input
         type="text"
         class="config-value"
@@ -23,7 +23,7 @@
       />
     </div>
     {{/each}} {{else}}
-    <div>No Custom Config</div>
+    <div>{{ @root.i18n.provisioner.customConfig.noConfig }}</div>
     {{/if}}
   </div>
 </div>

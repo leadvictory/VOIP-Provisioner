@@ -1,27 +1,17 @@
 <div class="section-wrapper">
   <div class="modal-overlay dsskeys-modal">
     <div class="device-modal">
-      <h3>DSS Keys – {{macAddress}}</h3>
+      <h3>{{ i18n.provisioner.dssKeys.title }} {{macAddress}}</h3>
 
       <div id="dss-keys-container">
         {{#each keys}}
-        <div
-          class="dss-key-row"
-          data-index="{{@index}}"
-          style="margin-bottom: 16px"
-        >
+        <div class="dss-key-row" data-index="{{@index}}" style="margin-bottom: 16px">
           <div class="form-row">
-            <label>Position:</label>
-            <input
-              type="number"
-              class="dss-position"
-              value="{{position}}"
-              min="0"
-              max="18"
-            />
+            <label>{{ @root.i18n.provisioner.dssKeys.position }}</label>
+            <input type="number" class="dss-position" value="{{position}}" min="0" max="18" />
           </div>
           <div class="form-row">
-            <label>Type:</label>
+            <label>{{ @root.i18n.provisioner.dssKeys.type }}</label>
             <select class="dss-type">
               {{#each ../dssTypes}}
                 <option value="{{this}}" {{#ifEquals this ../type}}selected{{/ifEquals}}>{{this}}</option>
@@ -29,17 +19,15 @@
             </select>
           </div>
           <div class="form-row">
-            <label>Label:</label>
+            <label>{{ @root.i18n.provisioner.dssKeys.label }}</label>
             <input type="text" class="dss-label" value="{{label}}" />
           </div>
-
           <div class="form-row">
-            <label>Value:</label>
+            <label>{{ @root.i18n.provisioner.dssKeys.value }}</label>
             <input type="text" class="dss-value" value="{{value}}" />
           </div>
-
           <div class="form-row">
-            <label>User ID:</label>
+            <label>{{ @root.i18n.provisioner.dssKeys.userId }}</label>
             <input type="text" class="dss-user-id" value="{{user_id}}" />
           </div>
         </div>
@@ -47,15 +35,21 @@
       </div>
 
       <div style="margin-top: 10px">
-        <button class="btn btn-secondary" id="add-dss-row">+ Add Row</button>
+        <button class="btn btn-secondary" id="add-dss-row">
+          {{ i18n.provisioner.dssKeys.addRow }}
+        </button>
         <button class="btn btn-danger" id="delete-all-dss-keys">
-          Delete All
+          {{ i18n.provisioner.dssKeys.deleteAll }}
         </button>
       </div>
 
       <div class="modal-actions" style="text-align: right; margin-top: 15px">
-        <button class="btn btn-primary" id="save-dss-keys">Save</button>
-        <button class="btn close-dss-modal">Close</button>
+        <button class="btn btn-primary" id="save-dss-keys">
+          {{ i18n.provisioner.dssKeys.save }}
+        </button>
+        <button class="btn close-dss-modal">
+          {{ i18n.provisioner.dssKeys.close }}
+        </button>
       </div>
     </div>
   </div>

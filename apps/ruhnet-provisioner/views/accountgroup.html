@@ -1,28 +1,32 @@
 <div class="device-group-settings">
-  <h4>Account Group Assignment</h4>
+  <h4>{{ i18n.provisioner.deviceGroup.title }}</h4>
   <div class="form-inline" style="margin-bottom: 10px">
     <input
       type="text"
       id="group-mac"
-      placeholder="MAC Address (e.g., 0004f222abcd)"
+      placeholder="{{ i18n.provisioner.deviceGroup.macPlaceholder }}"
       class="form-control"
     />
     <input
       type="text"
       id="group-name"
-      placeholder="Group (e.g., frontdesk)"
+      placeholder="{{ i18n.provisioner.deviceGroup.groupPlaceholder }}"
       class="form-control"
     />
     <input
       type="text"
       id="subgroup-name"
-      placeholder="Subgroup (optional)"
+      placeholder="{{ i18n.provisioner.deviceGroup.subgroupPlaceholder }}"
       class="form-control"
     />
-    <button id="set-group-button" class="btn btn-primary">Set Group</button>
-    <button id="get-group-button" class="btn btn-info">Get Group</button>
+    <button id="set-group-button" class="btn btn-primary">
+      {{ i18n.provisioner.deviceGroup.setButton }}
+    </button>
+    <button id="get-group-button" class="btn btn-info">
+      {{ i18n.provisioner.deviceGroup.getButton }}
+    </button>
     <button id="delete-group-button" class="btn btn-danger">
-      Delete Group
+      {{ i18n.provisioner.deviceGroup.deleteButton }}
     </button>
   </div>
 

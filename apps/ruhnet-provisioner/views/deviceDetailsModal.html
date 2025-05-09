@@ -1,14 +1,30 @@
 <div class="section-wrapper">
   <div class="modal-overlay">
     <div class="device-modal">
-      <h3>Device Details</h3>
+      <h3>{{ i18n.provisioner.deviceModal.title }}</h3>
       <ul style="list-style: none; padding: 0; margin-bottom: 20px">
-        <li><strong>Type:</strong> {{deviceType}}</li>
-        <li><strong>Name:</strong> {{name}}</li>
-        <li><strong>MAC Address:</strong> {{macAddress}}</li>
-        <li><strong>User:</strong> {{ownerName}}</li>
-        <li><strong>Enabled:</strong> {{#if enabled}}Yes{{else}}No{{/if}}</li>
+        <li>
+          <strong>{{ i18n.provisioner.deviceModal.type }}:</strong>
+          {{deviceType}}
+        </li>
+        <li>
+          <strong>{{ i18n.provisioner.deviceModal.name }}:</strong> {{name}}
+        </li>
+        <li>
+          <strong>{{ i18n.provisioner.deviceModal.mac }}:</strong>
+          {{macAddress}}
+        </li>
+        <li>
+          <strong>{{ i18n.provisioner.deviceModal.user }}:</strong>
+          {{ownerName}}
+        </li>
+        <li>
+          <strong>{{ i18n.provisioner.deviceModal.enabled }}:</strong> {{#if
+          enabled}}{{ i18n.provisioner.deviceModal.enabledYes }}{{else}}{{
+          i18n.provisioner.deviceModal.enabledNo }}{{/if}}
+        </li>
       </ul>
+
       <div class="config-fields" style="margin-top: 15px">
         <div class="custom-config-container" style="margin-top: 20px"></div>
         {{#each customConfig}}
@@ -21,14 +37,14 @@
             margin-bottom: 8px;
           "
         >
-          <label>Key:</label>
+          <label>{{ i18n.provisioner.deviceModal.keyLabel }}</label>
           <input
             type="text"
             class="config-key"
             value="{{@key}}"
             style="flex: 1"
           />
-          <label>Value:</label>
+          <label>{{ i18n.provisioner.deviceModal.valueLabel }}</label>
           <input
             type="text"
             class="config-value"
@@ -39,30 +55,37 @@
         </div>
         {{/each}}
       </div>
+
       <div class="config-fields dynamic" style="margin-top: 15px">
         <div class="config-pair">
-          <label>Key:</label>
+          <label>{{ i18n.provisioner.deviceModal.keyLabel }}</label>
           <input
             type="text"
             class="config-key"
-            placeholder="e.g. features.config_dsskey_length"
+            placeholder="{{ i18n.provisioner.deviceModal.keyPlaceholder }}"
             style="flex: 1"
           />
-          <label>Value:</label>
+          <label>{{ i18n.provisioner.deviceModal.valueLabel }}</label>
           <input
             type="text"
             class="config-value"
-            placeholder="e.g. 2"
+            placeholder="{{ i18n.provisioner.deviceModal.valuePlaceholder }}"
             style="flex: 1"
           />
-          <!-- <button type="button" class="remove-pair">🗑</button> -->
-          <button id="add-config-pair">➕</button>
+          <button id="add-config-pair">
+            {{ i18n.provisioner.deviceModal.addButton }}
+          </button>
         </div>
       </div>
 
-      <button id="submit-custom-config" class="btn btn-primary">Set</button>
-      <button id="delete-custom-config" class="btn btn-danger">Delete</button>
-      <h3>Device Password</h3>
+      <button id="submit-custom-config" class="btn btn-primary">
+        {{ i18n.provisioner.deviceModal.setButton }}
+      </button>
+      <button id="delete-custom-config" class="btn btn-danger">
+        {{ i18n.provisioner.deviceModal.deleteButton }}
+      </button>
+
+      <h3>{{ i18n.provisioner.deviceModal.passwordTitle }}</h3>
       <div class="device-password-section" style="margin-top: 10px">
         {{#if password}}
         <div
@@ -70,22 +93,23 @@
           class="devicepassword-entry"
           style="margin-bottom: 10px"
         >
-          <strong>Current Password:</strong> {{password}}
+          <strong>{{ i18n.provisioner.deviceModal.currentPassword }}</strong>
+          {{password}}
           <i
             class="fa fa-remove devicepassword-delete"
             style="cursor: pointer; margin-left: 10px"
-            title="Delete Password"
+            title="{{ i18n.provisioner.deviceModal.deletePasswordTooltip }}"
           ></i>
         </div>
         {{else}}
-        <div><em>No password set</em></div>
+        <div><em>{{ i18n.provisioner.deviceModal.noPassword }}</em></div>
         {{/if}}
 
         <div style="margin-top: 10px">
           <input
             id="devicepassword-set-input"
             type="text"
-            placeholder="NewPa$$w0rD"
+            placeholder="{{ i18n.provisioner.deviceModal.passwordPlaceholder }}"
             class="form-control"
           />
           <button
@@ -93,19 +117,27 @@
             class="btn btn-primary"
             style="margin-top: 5px"
           >
-            Set Password
+            {{ i18n.provisioner.deviceModal.passwordSetButton }}
           </button>
         </div>
       </div>
-      <h3>Device Dialplan</h3>
+
+      <h3>{{ i18n.provisioner.deviceModal.dialplanTitle }}</h3>
       <div class="device-dialplan-section">
         {{#if dialplan.digit_map}}
-        <p><strong>Current Digit Map:</strong> {{dialplan.digit_map}}</p>
+        <p>
+          <strong>{{ i18n.provisioner.deviceModal.currentDigitMap }}</strong>
+          {{dialplan.digit_map}}
+        </p>
         {{/if}} {{#if dialplan.dial_delay}}
-        <p><strong>Current Dial Delay:</strong> {{dialplan.dial_delay}}</p>
+        <p>
+          <strong>{{ i18n.provisioner.deviceModal.currentDialDelay }}</strong>
+          {{dialplan.dial_delay}}
+        </p>
         {{/if}}
+
         <div class="form-row">
-          <label>Digit Map:</label>
+          <label>{{ i18n.provisioner.deviceModal.digitMapLabel }}</label>
           <input
             id="dialplan-digitmap"
             type="text"
@@ -114,57 +146,64 @@
           />
         </div>
         <div class="form-row">
-          <label>Dial Delay:</label>
+          <label>{{ i18n.provisioner.deviceModal.dialDelayLabel }}</label>
           <input
             id="dialplan-delay"
             type="number"
             class="form-control"
             value="{{dialplan.dial_delay}}"
           />
-          </div>
-          <div style="margin-top: 10px">
-            <button id="set-device-dialplan" class="btn btn-primary">
-              Set
-            </button>
-            <button id="delete-device-dialplan" class="btn btn-danger">
-              Delete
-            </button>
-          </div>
         </div>
-        <h3>Device Group</h3>
-        <div class="device-group-section" style="margin-top: 10px">
-          <div
-            id="device-group-status"
-            style="margin-top: 10px; font-weight: bold"
-          ></div>
-          <div class="form-row">
-            <label>Group:</label>
-            <input
-              type="text"
-              id="device-group"
-              class="form-control"
-              placeholder="e.g. frontdesk"
-            />
-          </div>
-          <div class="form-row">
-            <label>Subgroup:</label>
-            <input
-              type="text"
-              id="device-subgroup"
-              class="form-control"
-              placeholder="optional"
-            />
-          </div>
-          <div style="margin-top: 10px">
-            <button id="set-device-group" class="btn btn-primary">Set</button>
-            <button id="delete-device-group" class="btn btn-danger">
-              Delete
-            </button>
-          </div>
+        <div style="margin-top: 10px">
+          <button id="set-device-dialplan" class="btn btn-primary">
+            {{ i18n.provisioner.deviceModal.setButton }}
+          </button>
+          <button id="delete-device-dialplan" class="btn btn-danger">
+            {{ i18n.provisioner.deviceModal.deleteButton }}
+          </button>
         </div>
-        <div class="modal-actions" style="text-align: right">
-          <button id="close-modal" class="btn">Close</button>
+      </div>
+
+      <h3>{{ i18n.provisioner.deviceModal.groupTitle }}</h3>
+      <div class="device-group-section" style="margin-top: 10px">
+        <div
+          id="device-group-status"
+          style="margin-top: 10px; font-weight: bold"
+        ></div>
+
+        <div class="form-row">
+          <label>{{ i18n.provisioner.deviceModal.groupLabel }}</label>
+          <input
+            type="text"
+            id="device-group"
+            class="form-control"
+            placeholder="{{ i18n.provisioner.deviceModal.groupPlaceholder }}"
+          />
         </div>
+        <div class="form-row">
+          <label>{{ i18n.provisioner.deviceModal.subgroupLabel }}</label>
+          <input
+            type="text"
+            id="device-subgroup"
+            class="form-control"
+            placeholder="{{ i18n.provisioner.deviceModal.subgroupPlaceholder }}"
+          />
+        </div>
+
+        <div style="margin-top: 10px">
+          <button id="set-device-group" class="btn btn-primary">
+            {{ i18n.provisioner.deviceModal.setButton }}
+          </button>
+          <button id="delete-device-group" class="btn btn-danger">
+            {{ i18n.provisioner.deviceModal.deleteButton }}
+          </button>
+        </div>
+      </div>
+
+      <div class="modal-actions" style="text-align: right">
+        <button id="close-modal" class="btn">
+          {{ i18n.provisioner.deviceModal.close }}
+        </button>
       </div>
     </div>
   </div>

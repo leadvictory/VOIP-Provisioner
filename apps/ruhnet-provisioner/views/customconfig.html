@@ -2,9 +2,15 @@
   <h4 id="custom-config-title">{{ i18n.provisioner.customConfig.title }}</h4>
 
   <div class="form-control">
-    <textarea id="custom-config-input" rows="10" style="width: 99%">
-{{custom_config}}</textarea
-    >
+    <div
+      id="custom-config-input"
+      style="
+        width: 99%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        background: #f9f9f9;
+      "
+    ></div>
     <br />
     <i
       class="fa fa-remove custom-config-delete"
@@ -16,36 +22,55 @@
   <hr />
 
   <div class="form-control">
-    <label>Add Custom Config Setting</label>
+    <label>{{ i18n.provisioner.customConfig.addTitle }}</label>
+
     <div class="form-row">
-      <label for="config-brand">Brand</label>
+      <label for="config-brand"
+        >{{ i18n.provisioner.customConfig.brandLabel }}</label
+      >
       <select id="config-brand">
-        <option value="">Select brand</option>
+        <option value="">
+          {{ i18n.provisioner.customConfig.brandPlaceholder }}
+        </option>
       </select>
     </div>
 
     <div class="form-row">
-      <label for="config-family">Family</label>
+      <label for="config-family"
+        >{{ i18n.provisioner.customConfig.familyLabel }}</label
+      >
       <select id="config-family" disabled>
-        <option value="">Select family</option>
+        <option value="">
+          {{ i18n.provisioner.customConfig.familyPlaceholder }}
+        </option>
       </select>
     </div>
 
     <div class="form-row">
-      <label for="config-model">Model</label>
+      <label for="config-model"
+        >{{ i18n.provisioner.customConfig.modelLabel }}</label
+      >
       <select id="config-model" disabled>
-        <option value="">Select model</option>
+        <option value="">
+          {{ i18n.provisioner.customConfig.modelPlaceholder }}
+        </option>
       </select>
     </div>
+
     <div class="form-row">
-      <label for="config-group">Group</label>
+      <label for="config-group"
+        >{{ i18n.provisioner.customConfig.groupLabel }}</label
+      >
       <select id="config-group">
-        <option value="">Select group</option>
+        <option value="">
+          {{ i18n.provisioner.customConfig.groupPlaceholder }}
+        </option>
       </select>
       <button type="button" id="show-new-group" class="btn btn-secondary">
-        + Add Group
+        {{ i18n.provisioner.customConfig.addGroupButton }}
       </button>
     </div>
+
     <div
       class="form-row"
       id="new-group-container"
@@ -55,7 +80,7 @@
         type="text"
         id="new-group-name"
         class="form-control"
-        placeholder="Enter new group name"
+        placeholder="{{ i18n.provisioner.customConfig.newGroupPlaceholder }}"
         style="width: 70%; display: inline-block"
       />
       <button
@@ -64,31 +89,35 @@
         class="btn btn-primary"
         style="margin-left: 10px"
       >
-        Save Group
+        {{ i18n.provisioner.customConfig.saveGroupButton }}
       </button>
     </div>
+
     <br />
     <div id="config-kv-list">
       <div class="config-kv-row">
         <input
           class="config-key"
           type="text"
-          placeholder="Key (e.g., features.config_dsskey_length)"
+          placeholder="{{ i18n.provisioner.customConfig.keyPlaceholder }}"
         />
-        <input class="config-value" type="text" placeholder="Value (e.g., 2)" />
+        <input
+          class="config-value"
+          type="text"
+          placeholder="{{ i18n.provisioner.customConfig.valuePlaceholder }}"
+        />
         <button class="remove-kv btn btn-link" style="display: none">
           &times;
         </button>
       </div>
     </div>
-    <button
-      id="add-kv-row"
-      class="btn btn-secondary"
-      style="margin: 7px 0 7px 0"
-    >
-      +
+
+    <button id="add-kv-row" class="btn btn-secondary" style="margin: 7px 0">
+      {{ i18n.provisioner.customConfig.addRowButton }}
     </button>
     <br />
-    <button id="add-config-button" class="btn btn-primary">Add Setting</button>
+    <button id="add-config-button" class="btn btn-primary">
+      {{ i18n.provisioner.customConfig.addSettingButton }}
+    </button>
   </div>
 </div>
