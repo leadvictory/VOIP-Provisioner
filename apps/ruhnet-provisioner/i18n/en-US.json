@@ -45,7 +45,7 @@
     "phoneModels": {
       "title": "Phone Models",
       "noPhoneModels": "No phone models found.",
-      "addPhoneModelButton": "Add Phone Model"
+      "upgradePhoneModelButton": "update Phone Model"
     },
     "deviceSetting": {
       "description": "List of Devices",

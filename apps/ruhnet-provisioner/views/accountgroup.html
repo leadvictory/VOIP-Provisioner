@@ -1,0 +1,30 @@
+<div class="device-group-settings">
+  <h4>Account Group Assignment</h4>
+  <div class="form-inline" style="margin-bottom: 10px">
+    <input
+      type="text"
+      id="group-mac"
+      placeholder="MAC Address (e.g., 0004f222abcd)"
+      class="form-control"
+    />
+    <input
+      type="text"
+      id="group-name"
+      placeholder="Group (e.g., frontdesk)"
+      class="form-control"
+    />
+    <input
+      type="text"
+      id="subgroup-name"
+      placeholder="Subgroup (optional)"
+      class="form-control"
+    />
+    <button id="set-group-button" class="btn btn-primary">Set Group</button>
+    <button id="get-group-button" class="btn btn-info">Get Group</button>
+    <button id="delete-group-button" class="btn btn-danger">
+      Delete Group
+    </button>
+  </div>
+
+  <div id="group-result" style="margin-top: 10px"></div>
+</div>

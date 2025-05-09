@@ -135,12 +135,12 @@ define(function (require) {
       "provisioner.phonemodels.add": {
         apiRoot: monster.config.api.provisioner,
         url: "api/phones",
-        verb: "POST",
+        verb: "PUT",
       },
       "provisioner.phonemodels.update": {
         apiRoot: monster.config.api.provisioner,
         url: "api/phones",
-        verb: "PUT",
+        verb: "POST",
       },
       "provisioner.account_groups.list": {
         apiRoot: monster.config.api.provisioner,
@@ -221,6 +221,21 @@ define(function (require) {
       "provisioner.device_dsskeys.delete": {
         apiRoot: monster.config.api.provisioner,
         url: "api/{accountId}/{mac_address}/resetdevkeys",
+        verb: "DELETE",
+      },
+      "provisioner.device_group.set": {
+        apiRoot: monster.config.api.provisioner,
+        url: "api/{accountId}/{mac_address}/group",
+        verb: "POST",
+      },
+      "provisioner.device_group.get": {
+        apiRoot: monster.config.api.provisioner,
+        url: "api/{accountId}/{mac_address}/group",
+        verb: "GET",
+      },
+      "provisioner.device_group.delete": {
+        apiRoot: monster.config.api.provisioner,
+        url: "api/{accountId}/{mac_address}/group",
         verb: "DELETE",
       },
     },
@@ -774,40 +789,39 @@ define(function (require) {
 
         $(".phone-models").empty().append($models);
 
-        $("#phone-model-add-button").on("click", function () {
-          try {
-            var upgrades = [];
-            $("#upgrades-list .upgrade-entry").each(function () {
-              var from = $(this).find(".upgrade-from").val().trim();
-              var to = $(this).find(".upgrade-to").val().trim();
+        $("#add-phone-model-form").on("click", function () {
+          const $form = $(".phone-model-form").first().clone(true);
 
-              if (from && to) {
-                upgrades.push({ from: from, to: to });
-              }
-            });
+          // Clear all input values in the cloned form
+          $form.find("input").val("");
+          $(".phone-model-forms").append($form);
+        });
 
-            var getVal = function (id) {
-              var val = $("#" + id)
-                .val()
-                ?.trim();
-              return val !== "" ? val : undefined;
-            };
+        $("#phone-model-update-button").on("click", function () {
+          $(".phone-model-form").each(function () {
+            const $form = $(this);
 
-            var getIntVal = function (id) {
-              var val = parseInt($("#" + id).val(), 10);
+            const getVal = (id) =>
+              $form.find(`#${id}`).val()?.trim() || undefined;
+            const getIntVal = (id) => {
+              const val = parseInt($form.find(`#${id}`).val(), 10);
               return isNaN(val) ? undefined : val;
             };
 
-            var firmwareVersion = getVal("firmware_version");
-            var firmwareSection =
+            const upgrades = [];
+            $form.find(".upgrade-entry").each(function () {
+              const from = $(this).find(".upgrade-from").val().trim();
+              const to = $(this).find(".upgrade-to").val().trim();
+              if (from && to) upgrades.push({ from, to });
+            });
+
+            const firmwareVersion = getVal("firmware_version");
+            const firmwareSection =
               firmwareVersion || upgrades.length
-                ? {
-                    version: firmwareVersion,
-                    upgrades: upgrades,
-                  }
+                ? { version: firmwareVersion, upgrades }
                 : undefined;
 
-            var modelData = {
+            const modelData = {
               brand: getVal("brand"),
               family: getVal("family"),
               model: getVal("model"),
@@ -817,27 +831,16 @@ define(function (require) {
                 token_use_limit: getIntVal("token_use_limit"),
                 provisioning_protocol: getVal("provisioning_protocol"),
                 content_type: getVal("content_type"),
-                combo_keys: {
-                  quantity: getIntVal("combo_keys"),
-                },
-                feature_keys: {
-                  quantity: getIntVal("feature_keys"),
-                },
+                combo_keys: { quantity: getIntVal("combo_keys") },
+                feature_keys: { quantity: getIntVal("feature_keys") },
                 voicemail_code: getVal("voicemail_code"),
                 firmware: firmwareSection,
               },
             };
 
-            console.log(
-              "Sending modelData:",
-              JSON.stringify(modelData, null, 2)
-            );
+            console.log("Sending modelData:", modelData);
             self.addPhoneModel(modelData);
-          } catch (e) {
-            monster.ui.alert(
-              "Invalid input, please check fields: " + e.message
-            );
-          }
+          });
         });
 
         var state = {
@@ -1453,7 +1456,7 @@ define(function (require) {
       var self = this;
 
       monster.request({
-        resource: "provisioner.phonemodels.add",
+        resource: "provisioner.phonemodels.update",
         data: {
           accountId: self.accountId,
           userId: monster.apps.auth.currentUser.id,
@@ -1505,6 +1508,7 @@ define(function (require) {
           },
         },
         success: function (devices) {
+          console.log(devices);
           callback(devices.data);
         },
         error: function (err) {
@@ -1759,6 +1763,44 @@ define(function (require) {
           self.deleteDeviceDialplan(device.mac_address);
         });
 
+        self.getDeviceGroup(device.mac_address, function (groupData) {
+          let group = "",
+            subgroup = "";
+          if (typeof groupData === "string") {
+            group = groupData;
+          } else if (typeof groupData === "object") {
+            group = groupData.group || "";
+            subgroup = groupData.subgroup || "";
+          }
+
+          $modal.find("#device-group").val(group);
+          $modal.find("#device-subgroup").val(subgroup);
+
+          $modal
+            .find("#device-group-status")
+            .html(
+              `Current Group: <strong>${group || "(none)"}</strong><br>` +
+                `Subgroup: <strong>${subgroup || "(none)"}</strong>`
+            );
+        });
+
+        $modal.on("click", "#set-device-group", function () {
+          const group = $modal.find("#device-group").val().trim();
+          const subgroup = $modal.find("#device-subgroup").val().trim();
+          if (!group) {
+            monster.ui.alert("Group is required.");
+            return;
+          }
+
+          self.setDeviceGroup(device.mac_address, group, subgroup);
+        });
+
+        // Delete Device Group
+        $modal.on("click", "#delete-device-group", function () {
+          self.deleteDeviceGroup(device.mac_address);
+          $modal.find("#device-group-status").text("Group deleted.");
+        });
+
         $modal.on("click", "#close-modal", function () {
           $modal.remove();
         });
@@ -1902,6 +1944,25 @@ define(function (require) {
     getDSSKeys: function (macAddress) {
       var self = this;
 
+      const dssTypes = [
+        "",
+        "line",
+        "presence",
+        "parking",
+        "speed_dial",
+        "blf",
+        "url",
+        "mwi",
+        "dtmf",
+        "transfer",
+        "hold",
+        "dnd",
+        "record",
+        "page",
+        "ringgroup",
+        "queueagent",
+      ];
+
       monster.request({
         resource: "provisioner.device_dsskeys.list",
         data: {
@@ -1914,55 +1975,62 @@ define(function (require) {
             monster.template(self, "dsskeysModal", {
               macAddress,
               keys,
+              dssTypes,
             })
           );
 
           $("body").append($modal);
 
+          // Add DSS Row
           $modal.on("click", "#add-dss-row", function () {
-            $("#dss-keys-container").append(`
-              <div class="dss-key-row">
-                <div
-                  class="dss-key-row"
-                  data-index="{{@index}}"
-                  style="margin-bottom: 16px"
-                >
-                  <div class="form-row">
-                    <label>Position:</label>
-                    <input
-                      type="number"
-                      class="dss-position"
-                      value="{{position}}"
-                      min="0"
-                    />
-                  </div>
-                  <div class="form-row">
-                    <label>Type:</label>
-                    <input type="text" class="dss-type" value="{{type}}" />
-                  </div>
-                  <div class="form-row">
-                    <label>Label:</label>
-                    <input type="text" class="dss-label" value="{{label}}" />
-                  </div>
+            const typeOptions = dssTypes
+              .map((type) => `<option value="${type}">${type}</option>`)
+              .join("");
 
-                  <div class="form-row">
-                    <label>Value:</label>
-                    <input type="text" class="dss-value" value="{{value}}" />
-                  </div>
-
-                  <div class="form-row">
-                    <label>User ID:</label>
-                    <input type="text" class="dss-user-id" value="{{user_id}}" />
-                  </div>
-        </div>
+            const rowHtml = `
+              <div class="dss-key-row" style="margin-bottom: 16px">
+                <div class="form-row">
+                  <label>Position:</label>
+                  <input type="number" class="dss-position" min="0" max="18" />
+                </div>
+                <div class="form-row">
+                  <label>Type:</label>
+                  <select class="dss-type">
+                    ${dssTypes
+                      .map((type) => `<option value="${type}">${type}</option>`)
+                      .join("")}
+                  </select>
+                </div>
+                <div class="form-row">
+                  <label>Label:</label>
+                  <input type="text" class="dss-label" />
+                </div>
+                <div class="form-row">
+                  <label>Value:</label>
+                  <input type="text" class="dss-value" />
+                </div>
+                <div class="form-row">
+                  <label>User ID:</label>
+                  <input type="text" class="dss-user-id" />
+                </div>
+                <button type="button" class="remove-dss-row btn btn-link">🗑</button>
               </div>
-            `);
+            `;
+
+            $("#dss-keys-container").append(rowHtml);
           });
 
+          // Remove DSS Row
+          $modal.on("click", ".remove-dss-row", function () {
+            $(this).closest(".dss-key-row").remove();
+          });
+
+          // Save DSS Keys
           $modal.on("click", "#save-dss-keys", function () {
             self.setDSSKeys(macAddress, $modal);
           });
 
+          // Delete All
           $modal.on("click", "#delete-all-dss-keys", function () {
             if (
               confirm(
@@ -1973,6 +2041,8 @@ define(function (require) {
               $modal.remove();
             }
           });
+
+          // Close
           $modal.on("click", ".close-dss-modal", function () {
             $modal.remove();
           });
@@ -2037,6 +2107,72 @@ define(function (require) {
         },
         error: function () {
           monster.ui.alert("Failed to remove DSS keys.");
+        },
+      });
+    },
+
+    getDeviceGroup: function (mac, callback) {
+      var self = this;
+
+      monster.request({
+        resource: "provisioner.device_group.get",
+        data: {
+          accountId: self.accountId,
+          mac_address: mac,
+        },
+        success: function (res) {
+          console.log(res);
+          if (callback) callback(res.data);
+        },
+        error: function () {
+          monster.ui.alert("Failed to retrieve group.");
+          if (callback) callback({});
+        },
+      });
+    },
+
+    setDeviceGroup: function (mac, group, subgroup) {
+      var self = this;
+
+      monster.request({
+        resource: "provisioner.device_group.set",
+        data: {
+          accountId: self.accountId,
+          mac_address: mac,
+          data: {
+            group: group,
+            subgroup: subgroup || undefined,
+          },
+        },
+        success: function () {
+          monster.ui.toast({
+            type: "success",
+            message: "Device group set successfully.",
+          });
+        },
+        error: function () {
+          monster.ui.alert("Failed to set device group.");
+        },
+      });
+    },
+
+    deleteDeviceGroup: function (mac) {
+      var self = this;
+
+      monster.request({
+        resource: "provisioner.device_group.delete",
+        data: {
+          accountId: self.accountId,
+          mac_address: mac,
+        },
+        success: function () {
+          monster.ui.toast({
+            type: "success",
+            message: "Device group deleted.",
+          });
+        },
+        error: function () {
+          monster.ui.alert("Failed to delete device group.");
         },
       });
     },

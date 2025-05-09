@@ -104,33 +104,67 @@
         {{/if}} {{#if dialplan.dial_delay}}
         <p><strong>Current Dial Delay:</strong> {{dialplan.dial_delay}}</p>
         {{/if}}
-
-        <label>Digit Map:</label>
-        <input
-          id="dialplan-digitmap"
-          type="text"
-          class="form-control"
-          value="{{dialplan.digit_map}}"
-        />
-
-        <label>Dial Delay:</label>
-        <input
-          id="dialplan-delay"
-          type="number"
-          class="form-control"
-          value="{{dialplan.dial_delay}}"
-        />
-
-        <div style="margin-top: 10px">
-          <button id="set-device-dialplan" class="btn btn-primary">Set</button>
-          <button id="delete-device-dialplan" class="btn btn-danger">
-            Delete
-          </button>
+        <div class="form-row">
+          <label>Digit Map:</label>
+          <input
+            id="dialplan-digitmap"
+            type="text"
+            class="form-control"
+            value="{{dialplan.digit_map}}"
+          />
         </div>
-      </div>
-
-      <div class="modal-actions" style="text-align: right">
-        <button id="close-modal" class="btn">Close</button>
+        <div class="form-row">
+          <label>Dial Delay:</label>
+          <input
+            id="dialplan-delay"
+            type="number"
+            class="form-control"
+            value="{{dialplan.dial_delay}}"
+          />
+          </div>
+          <div style="margin-top: 10px">
+            <button id="set-device-dialplan" class="btn btn-primary">
+              Set
+            </button>
+            <button id="delete-device-dialplan" class="btn btn-danger">
+              Delete
+            </button>
+          </div>
+        </div>
+        <h3>Device Group</h3>
+        <div class="device-group-section" style="margin-top: 10px">
+          <div
+            id="device-group-status"
+            style="margin-top: 10px; font-weight: bold"
+          ></div>
+          <div class="form-row">
+            <label>Group:</label>
+            <input
+              type="text"
+              id="device-group"
+              class="form-control"
+              placeholder="e.g. frontdesk"
+            />
+          </div>
+          <div class="form-row">
+            <label>Subgroup:</label>
+            <input
+              type="text"
+              id="device-subgroup"
+              class="form-control"
+              placeholder="optional"
+            />
+          </div>
+          <div style="margin-top: 10px">
+            <button id="set-device-group" class="btn btn-primary">Set</button>
+            <button id="delete-device-group" class="btn btn-danger">
+              Delete
+            </button>
+          </div>
+        </div>
+        <div class="modal-actions" style="text-align: right">
+          <button id="close-modal" class="btn">Close</button>
+        </div>
       </div>
     </div>
   </div>

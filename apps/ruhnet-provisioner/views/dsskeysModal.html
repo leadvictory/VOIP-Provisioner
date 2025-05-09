@@ -17,11 +17,16 @@
               class="dss-position"
               value="{{position}}"
               min="0"
+              max="18"
             />
           </div>
           <div class="form-row">
             <label>Type:</label>
-            <input type="text" class="dss-type" value="{{type}}" />
+            <select class="dss-type">
+              {{#each ../dssTypes}}
+                <option value="{{this}}" {{#ifEquals this ../type}}selected{{/ifEquals}}>{{this}}</option>
+              {{/each}}
+            </select>
           </div>
           <div class="form-row">
             <label>Label:</label>

@@ -40,101 +40,121 @@
   </div>
 
   <hr />
+  <div class="phone-model-forms">
+    <div class="phone-model-form">
+      <!-- Phone Identity -->
+      <fieldset>
+        <legend>Phone Identity</legend>
 
-  <!-- Phone Identity -->
-  <fieldset>
-    <legend>Phone Identity</legend>
-
-    <div class="form-row">
-      <label for="brand">Brand</label>
-      <input type="text" id="brand" placeholder="e.g. yealink" />
-    </div>
-
-    <div class="form-row">
-      <label for="family">Family</label>
-      <input type="text" id="family" placeholder="e.g. t4x" />
-    </div>
-
-    <div class="form-row">
-      <label for="model">Model</label>
-      <input type="text" id="model" placeholder="e.g. t46u" />
-    </div>
-  </fieldset>
-
-  <!-- Phone Settings -->
-  <fieldset>
-    <legend>Settings</legend>
-
-    <div class="form-row">
-      <label for="user_agent">User Agent</label>
-      <input type="text" id="user_agent" placeholder="Yealink SIP-T46U" />
-    </div>
-
-    <div class="form-row">
-      <label for="template_file">Template File</label>
-      <input type="text" id="template_file" placeholder="yealink.xcfg" />
-    </div>
-
-    <div class="form-row">
-      <label for="token_use_limit">Token Limit</label>
-      <input type="number" id="token_use_limit" placeholder="e.g. 3" />
-    </div>
-
-    <div class="form-row">
-      <label for="provisioning_protocol">Protocol</label>
-      <input type="text" id="provisioning_protocol" placeholder="HTTP:8080" />
-    </div>
-
-    <div class="form-row">
-      <label for="content_type">Content-Type</label>
-      <input type="text" id="content_type" placeholder="text/xml" />
-    </div>
-
-    <div class="form-subsection">
-      <strong>Combo Keys:</strong>
-      <div class="form-row">
-        <label for="combo_keys">Quantity</label>
-        <input type="number" id="combo_keys" placeholder="e.g. 15" />
-      </div>
-    </div>
-
-    <div class="form-subsection">
-      <strong>Feature Keys:</strong>
-      <div class="form-row">
-        <label for="feature_keys">Quantity</label>
-        <input type="number" id="feature_keys" placeholder="e.g. 4" />
-      </div>
-    </div>
-
-    <div class="form-row">
-      <label for="voicemail_code">VM Code</label>
-      <input type="text" id="voicemail_code" placeholder="e.g. *97" />
-    </div>
-
-    <!-- Firmware -->
-    <div class="form-row">
-      <strong>Firmware:</strong>
-    </div>
-
-    <div class="form-row">
-      <label for="firmware_version">Version</label>
-      <input type="text" id="firmware_version" placeholder="108.86.0.70" />
-    </div>
-
-    <div class="form-row">
-      <label>Upgrades</label>
-      <div id="upgrades-list" style="flex: 1">
-        <div class="upgrade-entry" style="display: flex; gap: 10px">
-          <input type="text" placeholder="From version" class="upgrade-from" />
-          <input type="text" placeholder="To version" class="upgrade-to" />
+        <div class="form-row">
+          <label for="brand">Brand</label>
+          <input type="text" id="brand" placeholder="e.g. yealink" />
         </div>
-      </div>
-    </div>
 
-    <div class="form-control">
-      <button id="phone-model-add-button" class="btn btn-primary">
-        {{ i18n.provisioner.phoneModels.addPhoneModelButton }}
-      </button>
+        <div class="form-row">
+          <label for="family">Family</label>
+          <input type="text" id="family" placeholder="e.g. t4x" />
+        </div>
+
+        <div class="form-row">
+          <label for="model">Model</label>
+          <input type="text" id="model" placeholder="e.g. t46u" />
+        </div>
+      </fieldset>
+
+      <!-- Phone Settings -->
+      <fieldset>
+        <legend>Settings</legend>
+
+        <div class="form-row">
+          <label for="user_agent">User Agent</label>
+          <input type="text" id="user_agent" placeholder="Yealink SIP-T46U" />
+        </div>
+
+        <div class="form-row">
+          <label for="template_file">Template File</label>
+          <input type="text" id="template_file" placeholder="yealink.xcfg" />
+        </div>
+
+        <div class="form-row">
+          <label for="token_use_limit">Token Limit</label>
+          <input type="number" id="token_use_limit" placeholder="e.g. 3" />
+        </div>
+
+        <div class="form-row">
+          <label for="provisioning_protocol">Protocol</label>
+          <input
+            type="text"
+            id="provisioning_protocol"
+            placeholder="HTTP:8080"
+          />
+        </div>
+
+        <div class="form-row">
+          <label for="content_type">Content-Type</label>
+          <input type="text" id="content_type" placeholder="text/xml" />
+        </div>
+
+        <div class="form-subsection">
+          <strong>Combo Keys:</strong>
+          <div class="form-row">
+            <label for="combo_keys">Quantity</label>
+            <input type="number" id="combo_keys" placeholder="e.g. 15" />
+          </div>
+        </div>
+
+        <div class="form-subsection">
+          <strong>Feature Keys:</strong>
+          <div class="form-row">
+            <label for="feature_keys">Quantity</label>
+            <input type="number" id="feature_keys" placeholder="e.g. 4" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <label for="voicemail_code">VM Code</label>
+          <input type="text" id="voicemail_code" placeholder="e.g. *97" />
+        </div>
+
+        <!-- Firmware -->
+        <div class="form-row">
+          <strong>Firmware:</strong>
+        </div>
+
+        <div class="form-row">
+          <label for="firmware_version">Version</label>
+          <input type="text" id="firmware_version" placeholder="108.86.0.70" />
+        </div>
+
+        <div class="form-row">
+          <label>Upgrades</label>
+          <div id="upgrades-list" style="flex: 1">
+            <div class="upgrade-entry" style="display: flex; gap: 10px">
+              <input
+                type="text"
+                placeholder="From version"
+                class="upgrade-from"
+              />
+              <input type="text" placeholder="To version" class="upgrade-to" />
+            </div>
+          </div>
+        </div>
+      </fieldset>
     </div>
-  </fieldset>
+  </div>
+  <div class="form-control">
+    <button
+      id="add-phone-model-form"
+      class="btn btn-sm btn-outline-primary"
+      style="margin-top: 10px"
+    >
+      +
+    </button>
+  </div>
+  <hr />
+  <div class="form-control">
+    <button id="phone-model-update-button" class="btn btn-primary">
+      {{ i18n.provisioner.phoneModels.upgradePhoneModelButton }}
+    </button>
+  </div>
 </div>
