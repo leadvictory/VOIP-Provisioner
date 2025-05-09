@@ -2,17 +2,54 @@
   <div class="modal-overlay dsskeys-modal">
     <div class="device-modal">
       <h3>DSS Keys – {{macAddress}}</h3>
-      <ul class="dss-keys-list">
+
+      <div id="dss-keys-container">
         {{#each keys}}
-        <li>
-          <strong>{{position}}</strong>: {{type}} - {{label}}{{#if value}}
-          ({{value}}){{/if}}
-        </li>
-        {{/each}} {{#unless keys.length}}
-        <li>No keys found.</li>
-        {{/unless}}
-      </ul>
-      <div class="modal-actions" style="text-align: right">
+        <div
+          class="dss-key-row"
+          data-index="{{@index}}"
+          style="margin-bottom: 16px"
+        >
+          <div class="form-row">
+            <label>Position:</label>
+            <input
+              type="number"
+              class="dss-position"
+              value="{{position}}"
+              min="0"
+            />
+          </div>
+          <div class="form-row">
+            <label>Type:</label>
+            <input type="text" class="dss-type" value="{{type}}" />
+          </div>
+          <div class="form-row">
+            <label>Label:</label>
+            <input type="text" class="dss-label" value="{{label}}" />
+          </div>
+
+          <div class="form-row">
+            <label>Value:</label>
+            <input type="text" class="dss-value" value="{{value}}" />
+          </div>
+
+          <div class="form-row">
+            <label>User ID:</label>
+            <input type="text" class="dss-user-id" value="{{user_id}}" />
+          </div>
+        </div>
+        {{/each}}
+      </div>
+
+      <div style="margin-top: 10px">
+        <button class="btn btn-secondary" id="add-dss-row">+ Add Row</button>
+        <button class="btn btn-danger" id="delete-all-dss-keys">
+          Delete All
+        </button>
+      </div>
+
+      <div class="modal-actions" style="text-align: right; margin-top: 15px">
+        <button class="btn btn-primary" id="save-dss-keys">Save</button>
         <button class="btn close-dss-modal">Close</button>
       </div>
     </div>

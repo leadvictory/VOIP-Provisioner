@@ -213,6 +213,16 @@ define(function (require) {
         url: "api/{accountId}/{mac_address}/keys",
         verb: "GET",
       },
+      "provisioner.device_dsskeys.set": {
+        apiRoot: monster.config.api.provisioner,
+        url: "api/{accountId}/{mac_address}/keys",
+        verb: "POST",
+      },
+      "provisioner.device_dsskeys.delete": {
+        apiRoot: monster.config.api.provisioner,
+        url: "api/{accountId}/{mac_address}/resetdevkeys",
+        verb: "DELETE",
+      },
     },
 
     // Define the events available for other apps
@@ -718,8 +728,8 @@ define(function (require) {
         $deviceTable.on("click", ".device-details", function () {
           const macAddress = $(this).data("mac");
 
-          console.log("Clicked MAC address:", macAddress);
-          console.log("All devices:", self._devices);
+          // console.log("Clicked MAC address:", macAddress);
+          // console.log("All devices:", self._devices);
 
           const device = self._devices.find(function (d) {
             return d.mac_address === macAddress;
@@ -1471,7 +1481,6 @@ define(function (require) {
         },
         success: function (res) {
           var phoneModelsArray = Object.values(res.data);
-          console.log(phoneModelsArray);
           callback(phoneModelsArray);
         },
         error: function (res) {
@@ -1496,7 +1505,6 @@ define(function (require) {
           },
         },
         success: function (devices) {
-          console.log(devices.data);
           callback(devices.data);
         },
         error: function (err) {
@@ -1770,7 +1778,6 @@ define(function (require) {
         },
         success: function (response) {
           monster.ui.alert("Device password set successfully.");
-          console.log(response);
         },
         error: function (error) {
           monster.ui.alert("Failed to set device password.");
@@ -1789,9 +1796,7 @@ define(function (require) {
           mac_address: macAddress,
         },
         success: function (response) {
-          console.log(response);
           const password = response.data || null; // Safe access
-          console.log(password);
           callback(password);
         },
         error: function (error) {
@@ -1812,7 +1817,6 @@ define(function (require) {
         },
         success: function (response) {
           monster.ui.alert("Device password deleted.");
-          console.log(response);
         },
         error: function (error) {
           monster.ui.alert("Failed to delete device password.");
@@ -1849,7 +1853,6 @@ define(function (require) {
           mac_address: macAddress,
         },
         success: function (res) {
-          console.log(res.data);
           callback(res.data || {});
         },
         error: function () {
@@ -1906,22 +1909,134 @@ define(function (require) {
           mac_address: macAddress,
         },
         success: function (res) {
-          var keys = Object.values(res.data.combo_keys || {});
-          var $modal = $(
+          const keys = Object.values(res.data.combo_keys || {});
+          const $modal = $(
             monster.template(self, "dsskeysModal", {
-              macAddress: macAddress,
-              keys: keys,
+              macAddress,
+              keys,
             })
           );
 
           $("body").append($modal);
 
+          $modal.on("click", "#add-dss-row", function () {
+            $("#dss-keys-container").append(`
+              <div class="dss-key-row">
+                <div
+                  class="dss-key-row"
+                  data-index="{{@index}}"
+                  style="margin-bottom: 16px"
+                >
+                  <div class="form-row">
+                    <label>Position:</label>
+                    <input
+                      type="number"
+                      class="dss-position"
+                      value="{{position}}"
+                      min="0"
+                    />
+                  </div>
+                  <div class="form-row">
+                    <label>Type:</label>
+                    <input type="text" class="dss-type" value="{{type}}" />
+                  </div>
+                  <div class="form-row">
+                    <label>Label:</label>
+                    <input type="text" class="dss-label" value="{{label}}" />
+                  </div>
+
+                  <div class="form-row">
+                    <label>Value:</label>
+                    <input type="text" class="dss-value" value="{{value}}" />
+                  </div>
+
+                  <div class="form-row">
+                    <label>User ID:</label>
+                    <input type="text" class="dss-user-id" value="{{user_id}}" />
+                  </div>
+        </div>
+              </div>
+            `);
+          });
+
+          $modal.on("click", "#save-dss-keys", function () {
+            self.setDSSKeys(macAddress, $modal);
+          });
+
+          $modal.on("click", "#delete-all-dss-keys", function () {
+            if (
+              confirm(
+                "Are you sure you want to delete all DSS keys for this device?"
+              )
+            ) {
+              self.removeDSSKeys(macAddress);
+              $modal.remove();
+            }
+          });
           $modal.on("click", ".close-dss-modal", function () {
             $modal.remove();
           });
         },
         error: function () {
           monster.ui.alert("Failed to fetch DSS keys.");
+        },
+      });
+    },
+
+    setDSSKeys: function (macAddress, $modal) {
+      var self = this;
+      const comboKeys = [];
+
+      $modal.find(".dss-key-row").each(function () {
+        const row = $(this);
+        const key = {
+          position: parseInt(row.find(".dss-position").val(), 10),
+          type: row.find(".dss-type").val().trim(),
+          label: row.find(".dss-label").val().trim(),
+          value: row.find(".dss-value").val().trim(),
+          user_id: row.find(".dss-user-id").val().trim(),
+        };
+
+        if (!isNaN(key.position) && key.type) {
+          comboKeys.push(key);
+        }
+      });
+
+      monster.request({
+        resource: "provisioner.device_dsskeys.set",
+        data: {
+          accountId: self.accountId,
+          mac_address: macAddress,
+          data: { combo_keys: comboKeys },
+        },
+        success: function () {
+          monster.ui.toast({ type: "success", message: "DSS Keys saved." });
+          $modal.remove();
+        },
+        error: function () {
+          monster.ui.alert("Failed to save DSS keys.");
+        },
+      });
+    },
+
+    removeDSSKeys: function (macAddress) {
+      var self = this;
+
+      monster.request({
+        resource: "provisioner.device_dsskeys.delete",
+        data: {
+          accountId: self.accountId,
+          mac_address: macAddress,
+        },
+        success: function () {
+          monster.ui.toast({
+            type: "success",
+            message: "All DSS keys removed.",
+          });
+          $("#refresh").click();
+        },
+        error: function () {
+          monster.ui.alert("Failed to remove DSS keys.");
         },
       });
     },
