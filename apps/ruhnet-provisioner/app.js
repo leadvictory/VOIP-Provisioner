@@ -187,6 +187,26 @@ define(function (require) {
         url: "api/{accountId}/{mac_address}/devicepassword",
         verb: "DELETE",
       },
+      "provisioner.device.sync": {
+        apiRoot: monster.config.api.provisioner,
+        url: "v2/accounts/{accountId}/devices/{deviceId}/sync",
+        verb: "POST",
+      },
+      "provisioner.device_dialplan.get": {
+        apiRoot: monster.config.api.provisioner,
+        url: "api/{accountId}/{mac_address}/dialplan",
+        verb: "GET",
+      },
+      "provisioner.device_dialplan.set": {
+        apiRoot: monster.config.api.provisioner,
+        url: "api/{accountId}/{mac_address}/dialplan",
+        verb: "POST",
+      },
+      "provisioner.device_dialplan.delete": {
+        apiRoot: monster.config.api.provisioner,
+        url: "api/{accountId}/{mac_address}/dialplan",
+        verb: "DELETE",
+      },
     },
 
     // Define the events available for other apps
@@ -676,6 +696,17 @@ define(function (require) {
         $deviceTable.on("click", ".unlock-device", function () {
           const macAddress = $(this).data("mac");
           self.removeDeviceLock(macAddress);
+        });
+
+        $deviceTable.on("click", ".check-sync", function () {
+          const deviceId = $(this).data("id");
+
+          if (!deviceId) {
+            monster.ui.alert("Device ID missing.");
+            return;
+          }
+
+          self.sendDeviceSync(deviceId);
         });
 
         $deviceTable.on("click", ".device-details", function () {
@@ -1454,7 +1485,7 @@ define(function (require) {
           },
         },
         success: function (devices) {
-          //console.log(devices.data);
+          console.log(devices.data);
           callback(devices.data);
         },
         error: function (err) {
@@ -1778,6 +1809,80 @@ define(function (require) {
         error: function (error) {
           monster.ui.alert("Failed to delete device password.");
           console.error(error);
+        },
+      });
+    },
+
+    sendDeviceSync: function (deviceId) {
+      var self = this;
+
+      monster.request({
+        resource: "provisioner.device.sync",
+        data: {
+          accountId: self.accountId,
+          deviceId: deviceId,
+        },
+        success: function () {
+          monster.ui.alert("Check-Sync sent to device successfully.");
+        },
+        error: function () {
+          monster.ui.alert("Failed to send Check-Sync to device.");
+        },
+      });
+    },
+
+    getDeviceDialplan: function (macAddress, callback) {
+      var self = this;
+
+      monster.request({
+        resource: "provisioner.device_dialplan.get",
+        data: {
+          accountId: self.accountId,
+          mac_address: macAddress,
+        },
+        success: function (res) {
+          callback(res.data || {});
+        },
+        error: function () {
+          monster.ui.alert("Failed to fetch device dialplan.");
+          callback({});
+        },
+      });
+    },
+
+    setDeviceDialplan: function (macAddress, settings) {
+      var self = this;
+
+      monster.request({
+        resource: "provisioner.device_dialplan.set",
+        data: {
+          accountId: self.accountId,
+          mac_address: macAddress,
+          data: settings,
+        },
+        success: function () {
+          monster.ui.alert("Device dialplan updated successfully.");
+        },
+        error: function () {
+          monster.ui.alert("Failed to update device dialplan.");
+        },
+      });
+    },
+
+    deleteDeviceDialplan: function (macAddress) {
+      var self = this;
+
+      monster.request({
+        resource: "provisioner.device_dialplan.delete",
+        data: {
+          accountId: self.accountId,
+          mac_address: macAddress,
+        },
+        success: function () {
+          monster.ui.alert("Device dialplan deleted.");
+        },
+        error: function () {
+          monster.ui.alert("Failed to delete device dialplan.");
         },
       });
     },
