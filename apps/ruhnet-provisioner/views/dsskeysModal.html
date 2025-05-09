@@ -1,0 +1,20 @@
+<div class="section-wrapper">
+  <div class="modal-overlay dsskeys-modal">
+    <div class="device-modal">
+      <h3>DSS Keys – {{macAddress}}</h3>
+      <ul class="dss-keys-list">
+        {{#each keys}}
+        <li>
+          <strong>{{position}}</strong>: {{type}} - {{label}}{{#if value}}
+          ({{value}}){{/if}}
+        </li>
+        {{/each}} {{#unless keys.length}}
+        <li>No keys found.</li>
+        {{/unless}}
+      </ul>
+      <div class="modal-actions" style="text-align: right">
+        <button class="btn close-dss-modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

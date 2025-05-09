@@ -207,6 +207,12 @@ define(function (require) {
         url: "api/{accountId}/{mac_address}/dialplan",
         verb: "DELETE",
       },
+      // DSS keys setting
+      "provisioner.device_dsskeys.list": {
+        apiRoot: monster.config.api.provisioner,
+        url: "api/{accountId}/{mac_address}/keys",
+        verb: "GET",
+      },
     },
 
     // Define the events available for other apps
@@ -726,6 +732,11 @@ define(function (require) {
           }
 
           self.showDeviceDetails(device);
+        });
+
+        $deviceTable.on("click", ".dss-keys", function () {
+          const macAddress = $(this).data("mac");
+          self.getDSSKeys(macAddress);
         });
       });
     },
@@ -1581,171 +1592,168 @@ define(function (require) {
     showDeviceDetails: function (device) {
       var self = this;
 
-      const $modal = $(
-        self.getTemplate({
-          name: "deviceDetailsModal",
-          data: {
-            deviceType: device.device_type,
-            name: device.name,
-            macAddress: device.mac_address,
-            ownerName: device.username,
-            enabled: device.enabled,
-            customConfig: device.customConfig || {},
-          },
-        })
-      );
-
-      $("body").append($modal);
-
-      self.getDeviceCustomConfig(device.mac_address, function (response) {
-        const config = response.data || {};
-
-        const filteredConfig = {};
-        Object.entries(config).forEach(([key, value]) => {
-          if (typeof value !== "object" || value === null) {
-            filteredConfig[key] = value;
-          }
-        });
-
-        // Create a wrapper for the custom config section
-        const $customConfigWrapper = $("<div>").append(
-          "<h3>Custom Config</h3>"
+      self.getDeviceDialplan(device.mac_address, function (dialplanSettings) {
+        const $modal = $(
+          self.getTemplate({
+            name: "deviceDetailsModal",
+            data: {
+              deviceType: device.device_type,
+              name: device.name,
+              macAddress: device.mac_address,
+              ownerName: device.username,
+              enabled: device.enabled,
+              customConfig: device.customConfig || {},
+              dialplan: dialplanSettings || {},
+            },
+          })
         );
 
-        const $configFields = $('<div class="config-fields">');
+        $("body").append($modal);
 
-        // Loop through the filtered config and create the HTML
-        Object.entries(filteredConfig).forEach(([key, value]) => {
-          const $pair = $(document.createElement("div"))
-            .addClass("config-pair")
-            .css({
-              display: "flex",
-              "align-items": "center",
-              gap: "10px",
-              "margin-bottom": "8px",
-            }).append(`
-              <label>Key:</label>
-              <input type="text" class="config-key" value="${key}" style="flex: 1" readonly />
-              <label>Value:</label>
-              <input type="text" class="config-value" value="${value}" style="flex: 1" readonly />
-            `);
+        // Custom config
+        self.getDeviceCustomConfig(device.mac_address, function (response) {
+          const config = response.data || {};
+          const filteredConfig = {};
 
-          $configFields.append($pair);
-        });
-
-        // If no config exists
-        if (Object.keys(filteredConfig).length === 0) {
-          $configFields.append("<div>No Custom Config</div>");
-        }
-
-        // Append the custom config fields to the wrapper
-        $customConfigWrapper.append($configFields);
-
-        // Append the custom config section to the modal
-        $modal
-          .find(".custom-config-container")
-          .empty()
-          .append($customConfigWrapper);
-      });
-
-      $modal.on("click", "#add-config-pair", function () {
-        var html =
-          '<div class="config-pair" style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">' +
-          "<label>Key:</label>" +
-          '<input type="text" class="config-key" placeholder="Key" style="flex: 1;" />' +
-          "<label>Value:</label>" +
-          '<input type="text" class="config-value" placeholder="Value" style="flex: 1;" />' +
-          '<button type="button" class="remove-pair" style="background: #e74c3c; color: white; border: none; padding: 4px 8px; cursor: pointer;">🗑</button>' +
-          "</div>";
-
-        $modal.find(".config-fields.dynamic").append($(html));
-      });
-
-      $modal.on("click", ".remove-pair", function () {
-        $(this).closest(".config-pair").remove();
-      });
-
-      $modal.on("click", "#delete-custom-config", function () {
-        self.deleteDeviceCustomConfig(device.mac_address);
-      });
-
-      // Submit config
-      $modal.on("click", "#submit-custom-config", function () {
-        const config = {};
-
-        let valid = true;
-        $modal.find(".config-pair").each(function () {
-          const key = $(this).find(".config-key").val().trim();
-          const value = $(this).find(".config-value").val().trim();
-
-          if (key && value) {
-            config[key] = value;
-          } else {
-            valid = false;
-          }
-        });
-
-        if (!valid) {
-          monster.ui.alert("Please fill out all key and value fields.");
-          return;
-        }
-
-        self.addDeviceCustomConfig(device.mac_address, config);
-      });
-
-      self.getmacDevicePassword(device.mac_address, function (password) {
-        const $passwordSection = $modal.find(".device-password-section");
-
-        if (password) {
-          $passwordSection.html(`
-            <div id="devicepassword" class="devicepassword-entry" style="margin-bottom: 10px;">
-              <strong>Current Password:</strong> ${password}
-              <i class="fa fa-remove devicepassword-delete" style="cursor: pointer; margin-left: 10px;" title="Delete Password"></i>
-            </div>
-            <div style="margin-top: 10px;">
-              <input id="devicepassword-set-input" type="text" placeholder="NewPa$$w0rD" class="form-control" />
-              <button id="macdevicepassword-set-button" class="btn btn-primary" style="margin-top: 5px;">Set Password</button>
-            </div>
-          `);
-        } else {
-          $passwordSection.html(`
-            <div><em>No password set</em></div>
-            <div style="margin-top: 10px;">
-              <input id="devicepassword-set-input" type="text" placeholder="NewPa$$w0rD" class="form-control" />
-              <button id="macdevicepassword-set-button" class="btn btn-primary" style="margin-top: 5px;">Set Password</button>
-            </div>
-          `);
-        }
-
-        // 👇 Move this BELOW the `.html()` call so it sees the new DOM
-        $modal
-          .find("#macdevicepassword-set-button")
-          .off("click")
-          .on("click", function () {
-            const newPassword = $modal
-              .find("#devicepassword-set-input")
-              .val()
-              .trim();
-            if (newPassword.length >= 3) {
-              self.setmacDevicePassword(device.mac_address, newPassword);
-              // $modal.remove();
-            } else {
-              monster.ui.alert(
-                "Password too short. Must be at least 3 characters."
-              );
+          Object.entries(config).forEach(([key, value]) => {
+            if (typeof value !== "object" || value === null) {
+              filteredConfig[key] = value;
             }
           });
 
-        // Delete password
-        $modal.on("click", ".devicepassword-delete", function () {
-          self.deletemacDevicePassword(device.mac_address);
+          const $customConfigWrapper = $("<div>").append(
+            "<h3>Custom Config</h3>"
+          );
+          const $configFields = $('<div class="config-fields">');
+
+          Object.entries(filteredConfig).forEach(([key, value]) => {
+            const $pair = $(`
+              <div class="config-pair" style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                <label>Key:</label>
+                <input type="text" class="config-key" value="${key}" style="flex: 1" readonly />
+                <label>Value:</label>
+                <input type="text" class="config-value" value="${value}" style="flex: 1" readonly />
+              </div>
+            `);
+            $configFields.append($pair);
+          });
+
+          if (Object.keys(filteredConfig).length === 0) {
+            $configFields.append("<div>No Custom Config</div>");
+          }
+
+          $customConfigWrapper.append($configFields);
+          $modal
+            .find(".custom-config-container")
+            .empty()
+            .append($customConfigWrapper);
+        });
+
+        // Add/Remove custom config rows
+        $modal.on("click", "#add-config-pair", function () {
+          const html = `
+            <div class="config-pair" style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+              <label>Key:</label>
+              <input type="text" class="config-key" placeholder="Key" style="flex: 1;" />
+              <label>Value:</label>
+              <input type="text" class="config-value" placeholder="Value" style="flex: 1;" />
+              <button type="button" class="remove-pair" style="background: #e74c3c; color: white; border: none; padding: 4px 8px; cursor: pointer;">🗑</button>
+            </div>`;
+          $modal.find(".config-fields.dynamic").append($(html));
+        });
+
+        $modal.on("click", ".remove-pair", function () {
+          $(this).closest(".config-pair").remove();
+        });
+
+        $modal.on("click", "#submit-custom-config", function () {
+          const config = {};
+          let valid = true;
+
+          $modal.find(".config-pair").each(function () {
+            const key = $(this).find(".config-key").val().trim();
+            const value = $(this).find(".config-value").val().trim();
+            if (key && value) {
+              config[key] = value;
+            } else {
+              valid = false;
+            }
+          });
+
+          if (!valid) {
+            monster.ui.alert("Please fill out all key and value fields.");
+            return;
+          }
+
+          self.addDeviceCustomConfig(device.mac_address, config);
+        });
+
+        $modal.on("click", "#delete-custom-config", function () {
+          self.deleteDeviceCustomConfig(device.mac_address);
+        });
+
+        // Device password
+        self.getmacDevicePassword(device.mac_address, function (password) {
+          const $passwordSection = $modal.find(".device-password-section");
+
+          const passwordHtml = `
+            ${
+              password
+                ? `
+              <div id="devicepassword" class="devicepassword-entry" style="margin-bottom: 10px;">
+                <strong>Current Password:</strong> ${password}
+                <i class="fa fa-remove devicepassword-delete" style="cursor: pointer; margin-left: 10px;" title="Delete Password"></i>
+              </div>`
+                : `<div><em>No password set</em></div>`
+            }
+            <div style="margin-top: 10px;">
+              <input id="devicepassword-set-input" type="text" placeholder="NewPa$$w0rD" class="form-control" />
+              <button id="macdevicepassword-set-button" class="btn btn-primary" style="margin-top: 5px;">Set Password</button>
+            </div>`;
+
+          $passwordSection.html(passwordHtml);
+
+          $modal
+            .find("#macdevicepassword-set-button")
+            .off("click")
+            .on("click", function () {
+              const newPassword = $modal
+                .find("#devicepassword-set-input")
+                .val()
+                .trim();
+              if (newPassword.length >= 3) {
+                self.setmacDevicePassword(device.mac_address, newPassword);
+              } else {
+                monster.ui.alert(
+                  "Password too short. Must be at least 3 characters."
+                );
+              }
+            });
+
+          $modal.on("click", ".devicepassword-delete", function () {
+            self.deletemacDevicePassword(device.mac_address);
+            $modal.remove();
+          });
+        });
+
+        // Device Dialplan logic already fetched — just bind actions
+        $modal.on("click", "#set-device-dialplan", function () {
+          const digitMap = $modal.find("#dialplan-digitmap").val().trim();
+          const dialDelay = parseInt($modal.find("#dialplan-delay").val(), 10);
+
+          self.setDeviceDialplan(device.mac_address, {
+            digit_map: digitMap,
+            dial_delay: dialDelay,
+          });
+        });
+
+        $modal.on("click", "#delete-device-dialplan", function () {
+          self.deleteDeviceDialplan(device.mac_address);
+        });
+
+        $modal.on("click", "#close-modal", function () {
           $modal.remove();
         });
-      });
-
-      // Close modal
-      $modal.on("click", "#close-modal", function () {
-        $modal.remove();
       });
     },
 
@@ -1841,6 +1849,7 @@ define(function (require) {
           mac_address: macAddress,
         },
         success: function (res) {
+          console.log(res.data);
           callback(res.data || {});
         },
         error: function () {
@@ -1886,6 +1895,37 @@ define(function (require) {
         },
       });
     },
+
+    getDSSKeys: function (macAddress) {
+      var self = this;
+
+      monster.request({
+        resource: "provisioner.device_dsskeys.list",
+        data: {
+          accountId: self.accountId,
+          mac_address: macAddress,
+        },
+        success: function (res) {
+          var keys = Object.values(res.data.combo_keys || {});
+          var $modal = $(
+            monster.template(self, "dsskeysModal", {
+              macAddress: macAddress,
+              keys: keys,
+            })
+          );
+
+          $("body").append($modal);
+
+          $modal.on("click", ".close-dss-modal", function () {
+            $modal.remove();
+          });
+        },
+        error: function () {
+          monster.ui.alert("Failed to fetch DSS keys.");
+        },
+      });
+    },
+
     ////////////////////////////////////////////////////////
   };
 

@@ -97,6 +97,38 @@
           </button>
         </div>
       </div>
+      <h3>Device Dialplan</h3>
+      <div class="device-dialplan-section">
+        {{#if dialplan.digit_map}}
+        <p><strong>Current Digit Map:</strong> {{dialplan.digit_map}}</p>
+        {{/if}} {{#if dialplan.dial_delay}}
+        <p><strong>Current Dial Delay:</strong> {{dialplan.dial_delay}}</p>
+        {{/if}}
+
+        <label>Digit Map:</label>
+        <input
+          id="dialplan-digitmap"
+          type="text"
+          class="form-control"
+          value="{{dialplan.digit_map}}"
+        />
+
+        <label>Dial Delay:</label>
+        <input
+          id="dialplan-delay"
+          type="number"
+          class="form-control"
+          value="{{dialplan.dial_delay}}"
+        />
+
+        <div style="margin-top: 10px">
+          <button id="set-device-dialplan" class="btn btn-primary">Set</button>
+          <button id="delete-device-dialplan" class="btn btn-danger">
+            Delete
+          </button>
+        </div>
+      </div>
+
       <div class="modal-actions" style="text-align: right">
         <button id="close-modal" class="btn">Close</button>
       </div>
