@@ -6,21 +6,9 @@
       style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px"
     >
       <label>{{ @root.i18n.provisioner.customConfig.keyLabel }}</label>
-      <input
-        type="text"
-        class="config-key"
-        value="{{@key}}"
-        style="flex: 1"
-        readonly
-      />
+      <input type="text" class="config-key" value="{{@key}}" readonly />
       <label>{{ @root.i18n.provisioner.customConfig.valueLabel }}</label>
-      <input
-        type="text"
-        class="config-value"
-        value="{{this}}"
-        style="flex: 1"
-        readonly
-      />
+      <input type="text" class="config-value" value="{{this}}" readonly />
     </div>
     {{/each}} {{else}}
     <div>{{ @root.i18n.provisioner.customConfig.noConfig }}</div>

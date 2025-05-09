@@ -281,3 +281,15 @@ form legend {
   border: none;
   cursor: pointer;
 }
+
+#custom-config-input {
+  width: 99%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  background: #f9f9f9;
+}
+
+.new-group-container {
+  display: none;
+  margin-top: 10px;
+}

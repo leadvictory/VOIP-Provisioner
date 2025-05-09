@@ -28,29 +28,11 @@
       <div class="config-fields" style="margin-top: 15px">
         <div class="custom-config-container" style="margin-top: 20px"></div>
         {{#each customConfig}}
-        <div
-          class="config-pair"
-          style="
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 8px;
-          "
-        >
+        <div class="config-pair">
           <label>{{ i18n.provisioner.deviceModal.keyLabel }}</label>
-          <input
-            type="text"
-            class="config-key"
-            value="{{@key}}"
-            style="flex: 1"
-          />
+          <input type="text" class="config-key" value="{{@key}}" />
           <label>{{ i18n.provisioner.deviceModal.valueLabel }}</label>
-          <input
-            type="text"
-            class="config-value"
-            value="{{this}}"
-            style="flex: 1"
-          />
+          <input type="text" class="config-value" value="{{this}}" />
           <button type="button" class="remove-pair">🗑</button>
         </div>
         {{/each}}
@@ -63,14 +45,12 @@
             type="text"
             class="config-key"
             placeholder="{{ i18n.provisioner.deviceModal.keyPlaceholder }}"
-            style="flex: 1"
           />
           <label>{{ i18n.provisioner.deviceModal.valueLabel }}</label>
           <input
             type="text"
             class="config-value"
             placeholder="{{ i18n.provisioner.deviceModal.valuePlaceholder }}"
-            style="flex: 1"
           />
           <button id="add-config-pair">
             {{ i18n.provisioner.deviceModal.addButton }}
@@ -88,16 +68,11 @@
       <h3>{{ i18n.provisioner.deviceModal.passwordTitle }}</h3>
       <div class="device-password-section" style="margin-top: 10px">
         {{#if password}}
-        <div
-          id="devicepassword"
-          class="devicepassword-entry"
-          style="margin-bottom: 10px"
-        >
+        <div id="devicepassword" class="devicepassword-entry">
           <strong>{{ i18n.provisioner.deviceModal.currentPassword }}</strong>
           {{password}}
           <i
             class="fa fa-remove devicepassword-delete"
-            style="cursor: pointer; margin-left: 10px"
             title="{{ i18n.provisioner.deviceModal.deletePasswordTooltip }}"
           ></i>
         </div>
@@ -112,11 +87,7 @@
             placeholder="{{ i18n.provisioner.deviceModal.passwordPlaceholder }}"
             class="form-control"
           />
-          <button
-            id="macdevicepassword-set-button"
-            class="btn btn-primary"
-            style="margin-top: 5px"
-          >
+          <button id="macdevicepassword-set-button" class="btn btn-primary">
             {{ i18n.provisioner.deviceModal.passwordSetButton }}
           </button>
         </div>
@@ -166,10 +137,7 @@
 
       <h3>{{ i18n.provisioner.deviceModal.groupTitle }}</h3>
       <div class="device-group-section" style="margin-top: 10px">
-        <div
-          id="device-group-status"
-          style="margin-top: 10px; font-weight: bold"
-        ></div>
+        <div id="device-group-status"></div>
 
         <div class="form-row">
           <label>{{ i18n.provisioner.deviceModal.groupLabel }}</label>

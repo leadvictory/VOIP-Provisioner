@@ -2,19 +2,10 @@
   <h4 id="custom-config-title">{{ i18n.provisioner.customConfig.title }}</h4>
 
   <div class="form-control">
-    <div
-      id="custom-config-input"
-      style="
-        width: 99%;
-        padding: 10px;
-        border: 1px solid #ccc;
-        background: #f9f9f9;
-      "
-    ></div>
+    <div id="custom-config-input"></div>
     <br />
     <i
       class="fa fa-remove custom-config-delete"
-      style="cursor: pointer; margin-left: 10px"
       title="{{ i18n.provisioner.customConfig.deleteTooltip }}"
     ></i>
   </div>
@@ -71,24 +62,14 @@
       </button>
     </div>
 
-    <div
-      class="form-row"
-      id="new-group-container"
-      style="display: none; margin-top: 10px"
-    >
+    <div class="form-row" id="new-group-container">
       <input
         type="text"
         id="new-group-name"
         class="form-control"
         placeholder="{{ i18n.provisioner.customConfig.newGroupPlaceholder }}"
-        style="width: 70%; display: inline-block"
       />
-      <button
-        type="button"
-        id="save-new-group"
-        class="btn btn-primary"
-        style="margin-left: 10px"
-      >
+      <button type="button" id="save-new-group" class="btn btn-primary">
         {{ i18n.provisioner.customConfig.saveGroupButton }}
       </button>
     </div>
