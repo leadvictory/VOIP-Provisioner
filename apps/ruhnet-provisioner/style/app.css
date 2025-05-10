@@ -293,3 +293,28 @@ form legend {
   display: none;
   margin-top: 10px;
 }
+
+.jsonview {
+  font-family: monospace;
+  background-color: #f9f9f9;
+  padding: 10px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.jsonview .string {
+  color: #0b7500;
+}
+.jsonview .number {
+  color: #1c00cf;
+}
+.jsonview .boolean {
+  color: #aa0d91;
+}
+.jsonview .null {
+  color: #808080;
+}
+.jsonview .key {
+  color: #005cc5;
+}

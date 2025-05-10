@@ -31,6 +31,29 @@
         <div class="aclinfo"></div>
         <div class="dialplan-settings"></div>
         <div class="custom-config"></div>
+        <div class="group-dss-config section-wrapper">
+          <h4>Set Group DSS Keys</h4>
+          <div style="margin-bottom: 10px">
+            <input
+              type="text"
+              id="group-name"
+              placeholder="Group Name (e.g., frontdesk)"
+            />
+          </div>
+
+          <textarea
+            id="group-dss-json"
+            rows="10"
+            style="width: 100%"
+            placeholder='Paste JSON: { "brand": "...", "family": "...", "model": "...", "combo_keys": [...] }'
+          ></textarea>
+
+          <div style="margin-top: 10px">
+            <button id="submit-group-dss" class="btn btn-success">
+              Set DSS Keys
+            </button>
+          </div>
+        </div>
       </div>
 
       <div class="tab-pane" id="devices">

@@ -3,31 +3,26 @@
     {{@root.i18n.provisioner.deviceSetting.description}}
   </h4>
 
-  {{#if devices.length}}
+  {{#if groupedDevices}} {{#each groupedDevices}}
+  <h5>Group: {{@key}}</h5>
   <table>
     <thead>
       <tr>
-        <th style="text-align: left">
-          {{@root.i18n.provisioner.deviceSetting.deviceName}}
-        </th>
-        <th style="text-align: left">
-          {{@root.i18n.provisioner.deviceSetting.macAddress}}
-        </th>
-        <th style="text-align: left">Actions</th>
+        <th>{{@root.i18n.provisioner.deviceSetting.deviceName}}</th>
+        <th>{{@root.i18n.provisioner.deviceSetting.macAddress}}</th>
+        <th>Actions</th>
       </tr>
     </thead>
     <tbody>
-      {{#each devices}}
+      {{#each this}}
       <tr data-id="{{id}}">
-        <td style="text-align: left">{{name}}</td>
-        <td style="text-align: left">{{mac_address}}</td>
-        <td style="text-align: left">
+        <td>{{name}}</td>
+        <td>{{mac_address}}</td>
+        <td>
           <button class="device-details" data-mac="{{mac_address}}">
             Details
           </button>
           <button class="dss-keys" data-mac="{{mac_address}}">DSS Keys</button>
-        </td>
-        <td style="text-align: left">
           <button class="unlock-device" data-mac="{{mac_address}}">
             Unlock
           </button>
@@ -37,7 +32,7 @@
       {{/each}}
     </tbody>
   </table>
-  {{else}}
+  {{/each}} {{else}}
   <div>{{@root.i18n.provisioner.deviceSetting.noDevices}}</div>
   {{/if}}
 </div>

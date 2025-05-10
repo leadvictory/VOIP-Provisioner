@@ -1,8 +1,16 @@
+require.config({
+  paths: {
+    jsonview: "apps/ruhnet-provisioner/lib/jsonview",
+  },
+});
+
 define(function (require) {
   var $ = require("jquery"),
     _ = require("lodash"),
     monster = require("monster");
-  // require("jsoniew");
+
+  var jsonview = require("jsonview");
+
   var app = {
     name: "provisioner",
 
@@ -118,7 +126,7 @@ define(function (require) {
       },
       "provisioner.account_customconfig.delete": {
         apiRoot: monster.config.api.provisioner,
-        url: "api/{accountId}/customconfig/{groupname}",
+        url: "api/{accountId}/customconfig",
         verb: "DELETE",
       },
       //phone models
@@ -238,6 +246,11 @@ define(function (require) {
         url: "api/{accountId}/{mac_address}/group",
         verb: "DELETE",
       },
+      "provisioner.device_dsskeys_group.set": {
+        apiRoot: monster.config.api.provisioner,
+        url: "api/{accountId}/keys/{groupname}",
+        verb: "POST",
+      },
     },
 
     // Define the events available for other apps
@@ -287,7 +300,12 @@ define(function (require) {
     bindEvents: function (args) {
       var self = this,
         $template = args.template;
-
+      $template.find('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
+        const target = $(e.target).attr("href");
+        if (target === "#devices") {
+          self.loadLogEvents(); // ✅ Now it's visible
+        }
+      });
       // Refresh button
       $template.find("#refresh").on("click", function (e) {
         self.loadAccountSettings();
@@ -370,7 +388,6 @@ define(function (require) {
 
       self.loadDeviceTable();
       self.loadDeviceActions();
-      self.loadLogEvents();
     },
 
     loadPhoneModels: function () {
@@ -444,15 +461,23 @@ define(function (require) {
       self.getCustomConfig(function (data) {
         console.log("Custom Config Data:", data);
 
-        const formattedJSON = JSON.stringify(data, null, 2);
+        // const formattedJSON = JSON.stringify(data, null, 2);
         const $customConfig = $(
           self.getTemplate({
             name: "customconfig",
-            data: { custom_config: formattedJSON },
+            data: { custom_config: "" }, // keep template logic intact
           })
         );
 
         $(".custom-config").empty().append($customConfig);
+
+        // Render tree into the proper container
+        const $treeContainer = $("#custom-config-show").empty();
+        self.renderExpandableJSON(data, $treeContainer);
+
+        // const tree = jsonview.create(formattedJSON);
+        // jsonview.render(tree, document.querySelector(".custom-config"));
+
         const configData = [
           {
             id: "polycom",
@@ -540,16 +565,20 @@ define(function (require) {
           },
         ];
 
-        self.getGroups(function (groups) {
+        self.getGroups(function (groupsData) {
+          const groups = Object.entries(groupsData).map(([key, group]) => ({
+            id: key,
+            name: group.name || key,
+          }));
+
           const $group = $("#config-group");
           $group.empty().append(`<option value="">Select group</option>`);
 
           groups.forEach((group) => {
-            $group.append(
-              `<option value="${group.id}">${group.name || group.id}</option>`
-            );
+            $group.append(`<option value="${group.id}">${group.name}</option>`);
           });
         });
+
         $("#show-new-group").on("click", function () {
           $("#new-group-container").toggle();
         });
@@ -651,7 +680,7 @@ define(function (require) {
         });
 
         $(".custom-config-delete").on("click", function () {
-          self.deleteCustomConfig();
+          self.deleteallCustomConfig();
         });
 
         $("#add-config-button").on("click", function () {
@@ -713,55 +742,60 @@ define(function (require) {
     loadDeviceTable: function () {
       var self = this;
 
-      self.listDevices(function (devices) {
-        self._devices = devices;
+      self.getGroups(function (groupsData) {
+        console.log(groupsData);
+        const groupedDevices = [];
+
+        // Flatten groups and sub_members
+        Object.keys(groupsData).forEach((groupName) => {
+          const group = groupsData[groupName];
+          const combinedMembers = [
+            ...(group.members || []),
+            ...(group.sub_members || []),
+          ];
+          combinedMembers.forEach((device) => {
+            if (device.mac && device.brand && device.family && device.model) {
+              groupedDevices.push({
+                id: device.id || device.mac, // fallback to MAC as ID
+                name: device.name || "",
+                mac_address: device.mac,
+                group: groupName,
+              });
+            }
+          });
+        });
+
+        const grouped = _.groupBy(groupedDevices, "group");
+
         const $deviceTable = $(
           self.getTemplate({
             name: "devicesetting",
-            data: { devices: devices },
+            data: { groupedDevices: grouped },
           })
         );
 
         $(".device-table").empty().append($deviceTable);
 
-        $deviceTable.on("click", ".unlock-device", function () {
-          const macAddress = $(this).data("mac");
-          self.removeDeviceLock(macAddress);
+        // Rebind buttons
+        $(".device-details").on("click", function () {
+          const mac = $(this).data("mac");
+          const device = groupedDevices.find((d) => d.mac_address === mac);
+          if (device) self.showDeviceDetails(device);
         });
 
-        $deviceTable.on("click", ".check-sync", function () {
+        $(".dss-keys").on("click", function () {
+          const mac = $(this).data("mac");
+          self.getDSSKeys(mac);
+        });
+
+        $(".unlock-device").on("click", function () {
+          const mac = $(this).data("mac");
+          self.removeDeviceLock(mac);
+        });
+
+        $(".check-sync").on("click", function () {
           const deviceId = $(this).data("id");
-
-          if (!deviceId) {
-            monster.ui.alert("Device ID missing.");
-            return;
-          }
-
           self.sendDeviceSync(deviceId);
-        });
-
-        $deviceTable.on("click", ".device-details", function () {
-          const macAddress = $(this).data("mac");
-
-          // console.log("Clicked MAC address:", macAddress);
-          // console.log("All devices:", self._devices);
-
-          const device = self._devices.find(function (d) {
-            return d.mac_address === macAddress;
-          });
-
-          if (!device) {
-            console.error("Device not found for MAC:", macAddress);
-            monster.ui.alert("Device not found.");
-            return;
-          }
-
-          self.showDeviceDetails(device);
-        });
-
-        $deviceTable.on("click", ".dss-keys", function () {
-          const macAddress = $(this).data("mac");
-          self.getDSSKeys(macAddress);
         });
       });
     },
@@ -771,10 +805,10 @@ define(function (require) {
       $(".device-actions-buttons").html("<p>Device actions will load here</p>");
     },
 
-    loadLogEvents: function () {
-      var self = this;
-      $(".log-events").html("<p>Log events will load here</p>");
-    },
+    // loadLogEvents: function () {
+    //   var self = this;
+    //   $(".log-events").html("<p>Log events will load here</p>");
+    // },
 
     loadPhoneModelsTable: function () {
       var self = this;
@@ -1368,7 +1402,6 @@ define(function (require) {
           userId: monster.apps.auth.currentUser.id,
         },
         success: function (res) {
-          console.log("Custom Config Data:", res.data);
           callback(res.data);
         },
         error: function (res) {
@@ -1382,7 +1415,7 @@ define(function (require) {
       });
     },
 
-    deleteCustomConfig: function () {
+    deleteallCustomConfig: function () {
       var self = this;
       monster.request({
         resource: "provisioner.account_customconfig.delete",
@@ -1400,6 +1433,59 @@ define(function (require) {
       });
     },
 
+    deleteCustomConfig: function (brand, family, model) {
+      var self = this;
+
+      self.getCustomConfig(function (config) {
+        if (
+          config[brand] &&
+          config[brand][family] &&
+          config[brand][family][model]
+        ) {
+          delete config[brand][family][model];
+
+          // Clean up empty parent levels if needed
+          if (Object.keys(config[brand][family]).length === 0) {
+            delete config[brand][family];
+          }
+          if (Object.keys(config[brand]).length === 0) {
+            delete config[brand];
+          }
+
+          self.setCustomConfig(config);
+        } else {
+          monster.ui.alert("Model config not found.");
+        }
+      });
+    },
+
+    // getGroups: function (callback) {
+    //   var self = this;
+
+    //   monster.request({
+    //     resource: "provisioner.account_groups.list",
+    //     data: {
+    //       accountId: self.accountId,
+    //     },
+    //     success: function (res) {
+    //       console.log("Groups Raw Data:", res.data);
+
+    //       // Convert object of groups into an array
+    //       const groupsObject = res.data;
+    //       const groups = Object.keys(groupsObject).map((key) => ({
+    //         id: key,
+    //         name: groupsObject[key].name || key,
+    //       }));
+
+    //       callback(groups);
+    //     },
+    //     error: function (res) {
+    //       monster.ui.alert("Failed to get groups.");
+    //       callback([]);
+    //     },
+    //   });
+    // },
+
     getGroups: function (callback) {
       var self = this;
 
@@ -1409,20 +1495,11 @@ define(function (require) {
           accountId: self.accountId,
         },
         success: function (res) {
-          console.log("Groups Raw Data:", res.data);
-
-          // Convert object of groups into an array
-          const groupsObject = res.data;
-          const groups = Object.keys(groupsObject).map((key) => ({
-            id: key,
-            name: groupsObject[key].name || key,
-          }));
-
-          callback(groups);
+          callback(res.data);
         },
-        error: function (res) {
+        error: function () {
           monster.ui.alert("Failed to get groups.");
-          callback([]);
+          callback({});
         },
       });
     },
@@ -2121,7 +2198,6 @@ define(function (require) {
           mac_address: mac,
         },
         success: function (res) {
-          console.log(res);
           if (callback) callback(res.data);
         },
         error: function () {
@@ -2175,6 +2251,147 @@ define(function (require) {
           monster.ui.alert("Failed to delete device group.");
         },
       });
+    },
+
+    setGroupDSSKeys: function (groupName, dssKeysData) {
+      var self = this;
+
+      monster.request({
+        resource: "provisioner.device_dsskeys_group.set",
+        data: {
+          accountId: self.accountId,
+          groupname: groupName,
+          data: dssKeysData,
+        },
+        success: function () {
+          monster.ui.alert(
+            `DSS Keys set successfully for group "${groupName}".`
+          );
+        },
+        error: function (err) {
+          console.error(err);
+          monster.ui.alert("Failed to set DSS keys for group.");
+        },
+      });
+    },
+
+    loadLogEvents: function () {
+      var self = this;
+
+      // const $logsContainer = $(`
+      //   <div class="logs-wrapper">
+      //     <h4>Live Device Logs</h4>
+      //     <div class="logs-data" style="max-height: 300px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; background: #f9f9f9;"></div>
+      //   </div>
+      // `);
+
+      // $(".log-events").empty().append($logsContainer);
+
+      const wsurl = `wss://p.4x5.co/api/${self.accountId}/socket`;
+      console.log("🔌 Connecting to WebSocket:", wsurl);
+      const socket = new WebSocket(wsurl);
+
+      socket.onopen = function () {
+        console.log("✅ WebSocket connected");
+        const authPayload = {
+          type: "auth",
+          data: monster.util.getAuthToken(),
+        };
+        console.log("🔐 Sending auth:", authPayload);
+        socket.send(JSON.stringify(authPayload));
+      };
+
+      socket.onmessage = function (event) {
+        try {
+          const msg = JSON.parse(event.data);
+          console.log(msg);
+          if (msg.type === "log") {
+            self.appendLogToUI(msg.data);
+          }
+        } catch (err) {
+          console.error("Failed to parse WebSocket message", err);
+        }
+      };
+
+      socket.onerror = function (err) {
+        console.error("WebSocket error:", err);
+      };
+
+      socket.onclose = function () {
+        console.warn("WebSocket connection closed.");
+      };
+
+      // Optional: Keep reference if needed
+      self._logSocket = socket;
+    },
+
+    appendLogToUI: function (log) {
+      const $logsData = $(".log-events");
+
+      const $entry = $(`
+        <div class="log-entry" style="margin-bottom: 12px;">
+          <strong>${log.timestamp}</strong><br />
+          <span>MAC: ${log.device_details?.mac || "unknown"}</span><br />
+          <span>Status: <strong>${log.event_type.toUpperCase()} - ${
+        log.event_status
+      }</strong></span>
+          <pre style="background: #fff; border: 1px solid #eee; padding: 8px; margin-top: 6px; white-space: pre-wrap;">${
+            log.body
+          }</pre>
+        </div>
+      `);
+
+      $logsData.prepend($entry);
+
+      // Optional auto-trim
+      if ($logsData.children().length > 100) {
+        $logsData.children().last().remove();
+      }
+    },
+
+    renderExpandableJSON: function (obj, container, path = []) {
+      const self = this;
+      const ul = $("<ul>").css({
+        "list-style-type": "none",
+        paddingLeft: "16px",
+      });
+
+      Object.entries(obj).forEach(([key, value]) => {
+        const li = $("<li>");
+
+        if (typeof value === "object" && value !== null) {
+          const toggle = $("<span>").text("▸ ").css("cursor", "pointer");
+          const keySpan = $("<strong>").text(key + ": ");
+          const nestedContainer = $("<div>").hide();
+
+          toggle.on("click", function () {
+            nestedContainer.toggle();
+            toggle.text(nestedContainer.is(":visible") ? "▾ " : "▸ ");
+          });
+
+          li.append(toggle, keySpan);
+
+          if (path.length === 2) {
+            const [brand, family] = path;
+            const deleteBtn = $("<span>")
+              .text("🗑")
+              .css({ color: "red", cursor: "pointer", marginLeft: "8px" })
+              .on("click", function () {
+                self.deleteCustomConfig(brand, family, key);
+              });
+            li.append(deleteBtn);
+          }
+
+          self.renderExpandableJSON(value, nestedContainer, [...path, key]);
+          li.append(nestedContainer);
+        } else {
+          li.html(`<strong>${key}:</strong> ${value}`);
+        }
+
+        ul.append(li);
+      });
+
+      container.append(ul);
     },
 
     ////////////////////////////////////////////////////////
