@@ -44,12 +44,11 @@
           <textarea
             id="group-dss-json"
             rows="10"
-            style="width: 100%"
             placeholder='Paste JSON: { "brand": "...", "family": "...", "model": "...", "combo_keys": [...] }'
           ></textarea>
 
           <div style="margin-top: 10px">
-            <button id="submit-group-dss" class="btn btn-success">
+            <button id="submit-group-dss" class="btn btn-primary">
               Set DSS Keys
             </button>
           </div>
@@ -57,10 +56,14 @@
       </div>
 
       <div class="tab-pane" id="devices">
-        <h3>Devices & Logs</h3>
         <div class="device-table"></div>
-        <div class="device-actions-buttons"></div>
-        <div class="log-events"></div>
+        <div class="section-wrapper">
+          <h4>Device Live Logs</h4>
+          <div
+            class="log-events"
+            style="max-height: 400px; overflow-y: auto; font-family: monospace"
+          ></div>
+        </div>
       </div>
 
       <div class="tab-pane" id="phone-models">

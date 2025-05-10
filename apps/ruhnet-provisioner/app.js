@@ -1947,8 +1947,8 @@ define(function (require) {
     sendDeviceSync: function (deviceId) {
       var self = this;
 
-      monster.request({
-        resource: "provisioner.device.sync",
+      self.callApi({
+        resource: "device.restart",
         data: {
           accountId: self.accountId,
           deviceId: deviceId,
@@ -2286,6 +2286,16 @@ define(function (require) {
       // `);
 
       // $(".log-events").empty().append($logsContainer);
+      $(".log-events").empty().append(`
+        <div class="log-header" style="display: flex; gap: 12px; font-weight: bold; border-bottom: 2px solid #ccc; padding-bottom: 6px; font-family: monospace;">
+          <div style="flex: 0 0 160px;">Timestamp</div>
+          <div style="flex: 0 0 120px;">MAC</div>
+          <div style="flex: 0 0 280px;">Event Type</div>
+          <div style="flex: 0 0 100px;">Status</div>
+          <div style="flex: 1;">Preview</div>
+        </div>
+      `);
+      $(".log-events").append(`<div class="log-entries"></div>`);
 
       const wsurl = `wss://p.4x5.co/api/${self.accountId}/socket`;
       console.log("🔌 Connecting to WebSocket:", wsurl);
@@ -2326,24 +2336,64 @@ define(function (require) {
     },
 
     appendLogToUI: function (log) {
-      const $logsData = $(".log-events");
+      const $logsData = $(".log-entries");
 
-      const $entry = $(`
-        <div class="log-entry" style="margin-bottom: 12px;">
-          <strong>${log.timestamp}</strong><br />
-          <span>MAC: ${log.device_details?.mac || "unknown"}</span><br />
-          <span>Status: <strong>${log.event_type.toUpperCase()} - ${
-        log.event_status
-      }</strong></span>
-          <pre style="background: #fff; border: 1px solid #eee; padding: 8px; margin-top: 6px; white-space: pre-wrap;">${
-            log.body
-          }</pre>
-        </div>
-      `);
+      const id = log.id || log.device_details?.mac || log.timestamp;
+      let mac = log.device_details?.mac || log.path?.split("/")[4] || "";
+      mac = mac.length === 12 ? mac : "unknown";
+      const eventType = log.event_type || "unknown";
+      const status = log.event_status || "";
+      const timestamp = new Date(log.timestamp).toLocaleString("en-GB", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      });
 
-      $logsData.prepend($entry);
+      const body = `Path: ${log.path || ""}\nMethod: ${
+        log.method || ""
+      }\nUser-Agent: ${log.user_agent || ""}`;
+      const preview =
+        body.substring(0, 80).replace(/\n/g, " ") +
+        (body.length > 80 ? "..." : "");
+      const logId = `log-${id}`.replace(/[^a-zA-Z0-9_-]/g, "_");
 
-      // Optional auto-trim
+      const html = `
+    <div class="log-entry" id="${logId}" style="border-bottom: 1px solid #eee; cursor: pointer; padding: 6px 0;">
+      <div class="log-summary" style="display: flex; gap: 12px; font-family: monospace;">
+        <div style="flex: 0 0 160px;">${timestamp}</div>
+        <div style="flex: 0 0 120px;">${mac}</div>
+        <div style="flex: 0 0 280px;">${eventType}</div>
+        <div style="flex: 0 0 100px;">${status}</div>
+        <div style="flex: 1;">"${preview}"</div>
+      </div>
+      <pre class="log-details" style="display:none; background: #f9f9f9; padding: 8px; margin-top: 4px; font-family: monospace;">
+      Timestamp: ${timestamp}
+      MAC: ${mac}
+      Event Type: ${eventType}
+      Status: ${status}
+      Path: ${log.path || ""}
+      Method: ${log.method || ""}
+      User-Agent: ${log.user_agent || ""}
+      </pre>
+    </div>
+  `;
+
+      const $existing = $(`#${logId}`);
+      const $entry = $(document.createElement("div")).html(html).children();
+
+      if ($existing.length > 0) {
+        $existing.replaceWith($entry);
+      } else {
+        $logsData.prepend($entry);
+      }
+
+      $entry.find(".log-summary").on("click", function () {
+        $entry.find(".log-details").slideToggle(150);
+      });
+
       if ($logsData.children().length > 100) {
         $logsData.children().last().remove();
       }
